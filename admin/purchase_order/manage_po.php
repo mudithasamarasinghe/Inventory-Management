@@ -1,4 +1,4 @@
-<?php 
+<?php
 if(isset($_GET['id'])){
     $qry = $conn->query("SELECT p.*,s.name as supplier FROM purchase_orders p inner join suppliers s on p.supplier_id = s.id where p.id = '{$_GET['id']}'");
     if($qry->num_rows >0){
@@ -40,13 +40,13 @@ if(isset($_GET['id'])){
                         <div class="form-group">
                             <label for="supplier_id" class="control-label text-info">Supplier</label>
                             <select name="supplier_id" id="supplier_id" class="custom-select select2">
-                            <option <?php echo !isset($supplier_id) ? 'selected' : '' ?> disabled></option>
-                            <?php 
-                            $supplier = $conn->query("SELECT * FROM `suppliers` where status = 1 order by `name` asc");
-                            while($row=$supplier->fetch_assoc()):
-                            ?>
-                            <option value="<?php echo $row['id'] ?>" <?php echo isset($supplier_id) && $supplier_id == $row['id'] ? "selected" : "" ?> ><?php echo $row['name'] ?></option>
-                            <?php endwhile; ?>
+                                <option <?php echo !isset($supplier_id) ? 'selected' : '' ?> disabled></option>
+                                <?php
+                                $supplier = $conn->query("SELECT * FROM `suppliers` where status = 1 order by `name` asc");
+                                while($row=$supplier->fetch_assoc()):
+                                    ?>
+                                    <option value="<?php echo $row['id'] ?>" <?php echo isset($supplier_id) && $supplier_id == $row['id'] ? "selected" : "" ?> ><?php echo $row['name'] ?></option>
+                                <?php endwhile; ?>
                             </select>
                         </div>
                     </div>
@@ -55,15 +55,15 @@ if(isset($_GET['id'])){
                 <fieldset>
                     <legend class="text-info">Item Form</legend>
                     <div class="row justify-content-center align-items-end">
-                            <?php 
-                                $item_arr = array();
-                                $cost_arr = array();
-                                $item = $conn->query("SELECT * FROM `items` where status = 1 order by `name` asc");
-                                while($row=$item->fetch_assoc()):
-                                    $item_arr[$row['supplier_id']][$row['id']] = $row;
-                                    $cost_arr[$row['id']] = $row['cost'];
-                                endwhile;
-                            ?>
+                        <?php
+                        $item_arr = array();
+                        $cost_arr = array();
+                        $item = $conn->query("SELECT * FROM `items` where status = 1 order by `name` asc");
+                        while($row=$item->fetch_assoc()):
+                            $item_arr[$row['supplier_id']][$row['id']] = $row;
+                            $cost_arr[$row['id']] = $row['cost'];
+                        endwhile;
+                        ?>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="item_id" class="control-label">Item</label>
@@ -101,75 +101,75 @@ if(isset($_GET['id'])){
                         <col width="25%">
                     </colgroup>
                     <thead>
-                        <tr class="text-light bg-navy">
-                            <th class="text-center py-1 px-2"></th>
-                            <th class="text-center py-1 px-2">Item</th>
-                            <th class="text-center py-1 px-2">Unit</th>
-                            <th class="text-center py-1 px-2">Qty</th>
-                            <th class="text-center py-1 px-2">Cost</th>
-                            <th class="text-center py-1 px-2">Total</th>
-                        </tr>
+                    <tr class="text-light bg-navy">
+                        <th class="text-center py-1 px-2"></th>
+                        <th class="text-center py-1 px-2">Item</th>
+                        <th class="text-center py-1 px-2">Unit</th>
+                        <th class="text-center py-1 px-2">Qty</th>
+                        <th class="text-center py-1 px-2">Cost</th>
+                        <th class="text-center py-1 px-2">Total</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <?php 
-                        $total = 0;
-                        if(isset($id)):
+                    <?php
+                    $total = 0;
+                    if(isset($id)):
                         $qry = $conn->query("SELECT p.*,i.name,i.description FROM `po_items` p inner join items i on p.item_id = i.id where p.po_id = '{$id}'");
                         while($row = $qry->fetch_assoc()):
                             $total += $row['total']
-                        ?>
-                        <tr>
-                            <td class="py-1 px-2 text-center">
-                                <button class="btn btn-outline-danger btn-sm rem_row" type="button"><i class="fa fa-times"></i></button>
-                            </td>
-                            <td class="py-1 px-2 text-center qty">
-                                <span class="visible"><?php echo number_format($row['quantity']); ?></span>
-                                <input type="hidden" name="item_id[]" value="<?php echo $row['item_id']; ?>">
-                                <input type="hidden" name="unit[]" value="<?php echo $row['unit']; ?>">
-                                <input type="hidden" name="qty[]" value="<?php echo $row['quantity']; ?>">
-                                <input type="hidden" name="price[]" value="<?php echo $row['price']; ?>">
-                                <input type="hidden" name="total[]" value="<?php echo $row['total']; ?>">
-                            </td>
-                            <td class="py-1 px-2 text-center unit">
-                            <?php echo $row['unit']; ?>
-                            </td>
-                            <td class="py-1 px-2 item">
-                            <?php echo $row['name']; ?> <br>
-                            <?php echo $row['description']; ?>
-                            </td>
-                            <td class="py-1 px-2 text-right cost">
-                            <?php echo number_format($row['price']); ?>
-                            </td>
-                            <td class="py-1 px-2 text-right total">
-                            <?php echo number_format($row['total']); ?>
-                            </td>
-                        </tr>
+                            ?>
+                            <tr>
+                                <td class="py-1 px-2 text-center">
+                                    <button class="btn btn-outline-danger btn-sm rem_row" type="button"><i class="fa fa-times"></i></button>
+                                </td>
+                                <td class="py-1 px-2 text-center qty">
+                                    <span class="visible"><?php echo number_format($row['quantity']); ?></span>
+                                    <input type="hidden" name="item_id[]" value="<?php echo $row['item_id']; ?>">
+                                    <input type="hidden" name="unit[]" value="<?php echo $row['unit']; ?>">
+                                    <input type="hidden" name="qty[]" value="<?php echo $row['quantity']; ?>">
+                                    <input type="hidden" name="price[]" value="<?php echo $row['price']; ?>">
+                                    <input type="hidden" name="total[]" value="<?php echo $row['total']; ?>">
+                                </td>
+                                <td class="py-1 px-2 text-center unit">
+                                    <?php echo $row['unit']; ?>
+                                </td>
+                                <td class="py-1 px-2 item">
+                                    <?php echo $row['name']; ?> <br>
+                                    <?php echo $row['description']; ?>
+                                </td>
+                                <td class="py-1 px-2 text-right cost">
+                                    <?php echo number_format($row['price']); ?>
+                                </td>
+                                <td class="py-1 px-2 text-right total">
+                                    <?php echo number_format($row['total']); ?>
+                                </td>
+                            </tr>
                         <?php endwhile; ?>
-                        <?php endif; ?>
+                    <?php endif; ?>
                     </tbody>
                     <tfoot>
-                        <tr>
-                            <th class="text-right py-1 px-2" colspan="5">Sub Total</th>
-                            <th class="text-right py-1 px-2 sub-total">0</th>
-                        </tr>
-                        <tr>
-                            <th class="text-right py-1 px-2" colspan="5">Discount <input style="width:40px !important" name="discount_perc" class='' type="number" min="0" max="100" value="<?php echo isset($discount_perc) ? $discount_perc : 0 ?>">%
-                                <input type="hidden" name="discount" value="<?php echo isset($discount) ? $discount : 0 ?>">
-                            </th>
-                            <th class="text-right py-1 px-2 discount"><?php echo isset($discount) ? number_format($discount) : 0 ?></th>
-                        </tr>
-                        <tr>
-                            <th class="text-right py-1 px-2" colspan="5">Tax <input style="width:40px !important" name="tax_perc" class='' type="number" min="0" max="100" value="<?php echo isset($tax_perc) ? $tax_perc : 0 ?>">%
-                                <input type="hidden" name="tax" value="<?php echo isset($discount) ? $discount : 0 ?>">
-                            </th>
-                            <th class="text-right py-1 px-2 tax"><?php echo isset($tax) ? number_format($tax) : 0 ?></th>
-                        </tr>
-                        <tr>
-                            <th class="text-right py-1 px-2" colspan="5">Total
-                                <input type="hidden" name="amount" value="<?php echo isset($discount) ? $discount : 0 ?>">
-                            </th>
-                            <th class="text-right py-1 px-2 grand-total">0</th>
-                        </tr>
+                    <tr>
+                        <th class="text-right py-1 px-2" colspan="5">Sub Total</th>
+                        <th class="text-right py-1 px-2 sub-total">0</th>
+                    </tr>
+                    <tr>
+                        <th class="text-right py-1 px-2" colspan="5">Discount <input style="width:40px !important" name="discount_perc" class='' type="number" min="0" max="100" value="<?php echo isset($discount_perc) ? $discount_perc : 0 ?>">%
+                            <input type="hidden" name="discount" value="<?php echo isset($discount) ? $discount : 0 ?>">
+                        </th>
+                        <th class="text-right py-1 px-2 discount"><?php echo isset($discount) ? number_format($discount) : 0 ?></th>
+                    </tr>
+                    <tr>
+                        <th class="text-right py-1 px-2" colspan="5">Tax <input style="width:40px !important" name="tax_perc" class='' type="number" min="0" max="100" value="<?php echo isset($tax_perc) ? $tax_perc : 0 ?>">%
+                            <input type="hidden" name="tax" value="<?php echo isset($discount) ? $discount : 0 ?>">
+                        </th>
+                        <th class="text-right py-1 px-2 tax"><?php echo isset($tax) ? number_format($tax) : 0 ?></th>
+                    </tr>
+                    <tr>
+                        <th class="text-right py-1 px-2" colspan="5">Total
+                            <input type="hidden" name="amount" value="<?php echo isset($discount) ? $discount : 0 ?>">
+                        </th>
+                        <th class="text-right py-1 px-2 grand-total">0</th>
+                    </tr>
                     </tfoot>
                 </table>
                 <div class="row">
@@ -214,8 +214,10 @@ if(isset($_GET['id'])){
 <script>
     var items = $.parseJSON('<?php echo json_encode($item_arr) ?>')
     var costs = $.parseJSON('<?php echo json_encode($cost_arr) ?>')
-    
+
     $(function(){
+        var recordAdded= false;     // Variable to track if a record has been added
+
         $('.select2').select2({
             placeholder:"Please select here",
             width:'resolve',
@@ -228,14 +230,15 @@ if(isset($_GET['id'])){
         $('#supplier_id').change(function(){
             var supplier_id = $(this).val()
             $('#item_id').select2('destroy')
+
             if(!!items[supplier_id]){
                 $('#item_id').html('')
                 var list_item = new Promise(resolve=>{
                     Object.keys(items[supplier_id]).map(function(k){
                         var row = items[supplier_id][k]
                         var opt = $('<option>')
-                            opt.attr('value',row.id)
-                            opt.text(row.name)
+                        opt.attr('value',row.id)
+                        opt.text(row.name)
                         $('#item_id').append(opt)
                     })
                     resolve()
@@ -295,49 +298,49 @@ if(isset($_GET['id'])){
             tr.find('.rem_row').click(function(){
                 rem($(this))
             })
-            
+
             $('[name="discount_perc"],[name="tax_perc"]').on('input',function(){
                 calc()
             })
             $('#supplier_id').attr('readonly','readonly')
         })
         $('#po-form').submit(function(e){
-			e.preventDefault();
+            e.preventDefault();
             var _this = $(this)
-			 $('.err-msg').remove();
-			start_loader();
-			$.ajax({
-				url:_base_url_+"classes/Master.php?f=save_po",
-				data: new FormData($(this)[0]),
+            $('.err-msg').remove();
+            start_loader();
+            $.ajax({
+                url:_base_url_+"classes/Master.php?f=save_po",
+                data: new FormData($(this)[0]),
                 cache: false,
                 contentType: false,
                 processData: false,
                 method: 'POST',
                 type: 'POST',
                 dataType: 'json',
-				error:err=>{
-					console.log(err)
-					alert_toast("An error occured",'error');
-					end_loader();
-				},
-				success:function(resp){
-					if(resp.status == 'success'){
-						location.replace(_base_url_+"admin/index.php?page=purchase_order/view_po&id="+resp.id);
-					}else if(resp.status == 'failed' && !!resp.msg){
+                error:err=>{
+                    console.log(err)
+                    alert_toast("An error occured",'error');
+                    end_loader();
+                },
+                success:function(resp){
+                    if(resp.status == 'success'){
+                        location.replace(_base_url_+"admin/index.php?page=purchase_order/view_po&id="+resp.id);
+                    }else if(resp.status == 'failed' && !!resp.msg){
                         var el = $('<div>')
-                            el.addClass("alert alert-danger err-msg").text(resp.msg)
-                            _this.prepend(el)
-                            el.show('slow')
-                            end_loader()
+                        el.addClass("alert alert-danger err-msg").text(resp.msg)
+                        _this.prepend(el)
+                        el.show('slow')
+                        end_loader()
                     }else{
-						alert_toast("An error occured",'error');
-						end_loader();
+                        alert_toast("An error occured",'error');
+                        end_loader();
                         console.log(resp)
-					}
+                    }
                     $('html,body').animate({scrollTop:0},'fast')
-				}
-			})
-		})
+                }
+            })
+        })
 
         if('<?php echo isset($id) && $id > 0 ?>' == 1){
             calc()
@@ -362,7 +365,7 @@ if(isset($_GET['id'])){
         var tax = 0;
         $('table#list tbody input[name="total[]"]').each(function(){
             sub_total += parseFloat($(this).val())
-            
+
         })
         $('table#list tfoot .sub-total').text(parseFloat(sub_total).toLocaleString('en-US',{style:'decimal',maximumFractionDigit:2}))
         var discount =   sub_total * (parseFloat($('[name="discount_perc"]').val()) /100)
