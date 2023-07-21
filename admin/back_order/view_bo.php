@@ -23,10 +23,6 @@ if($qry->num_rows >0){
                         <div><?php echo isset($supplier) ? $supplier : '' ?></div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <label class="control-label text-info">B.O. Code</label>
-                    <div><?php echo isset($bo_code) ? $bo_code : '' ?></div>
-                </div>
             </div>
             <h4 class="text-info">Orders</h4>
             <table class="table table-striped table-bordered" id="list">

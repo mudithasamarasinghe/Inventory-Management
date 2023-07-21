@@ -1,4 +1,5 @@
-<?php 
+<?php
+//echo "SELECT p.*,s.name as supplier FROM purchase_orders p inner join suppliers s on p.supplier_id = s.id  where p.id = '{$_GET['id']}'";
 $qry = $conn->query("SELECT p.*,s.name as supplier FROM purchase_orders p inner join suppliers s on p.supplier_id = s.id  where p.id = '{$_GET['id']}'");
 if($qry->num_rows >0){
     foreach($qry->fetch_array() as $k => $v){
@@ -38,49 +39,25 @@ if($qry->num_rows >0){
                         <th class="text-center py-1 px-2">Qty</th>
                         <th class="text-center py-1 px-2">Unit</th>
                         <th class="text-center py-1 px-2">Item</th>
-                        <th class="text-center py-1 px-2">Cost</th>
-                        <th class="text-center py-1 px-2">Total</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php 
-                    $total = 0;
+                    <?php
                     $qry = $conn->query("SELECT p.*,i.name,i.description FROM `po_items` p inner join items i on p.item_id = i.id where p.po_id = '{$id}'");
                     while($row = $qry->fetch_assoc()):
-                        $total += $row['total']
                     ?>
                     <tr>
                         <td class="py-1 px-2 text-center"><?php echo number_format($row['quantity'],2) ?></td>
                         <td class="py-1 px-2 text-center"><?php echo ($row['unit']) ?></td>
                         <td class="py-1 px-2">
-                            <?php echo $row['name'] ?> <br>
+                            <?php echo $row['name'] ?>
                             <?php echo $row['description'] ?>
                         </td>
-                        <td class="py-1 px-2 text-right"><?php echo number_format($row['price']) ?></td>
-                        <td class="py-1 px-2 text-right"><?php echo number_format($row['total']) ?></td>
                     </tr>
 
                     <?php endwhile; ?>
                     
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <th class="text-right py-1 px-2" colspan="4">Sub Total</th>
-                        <th class="text-right py-1 px-2 sub-total"><?php echo number_format($total,2)  ?></th>
-                    </tr>
-                    <tr>
-                        <th class="text-right py-1 px-2" colspan="4">Discount <?php echo isset($discount_perc) ? $discount_perc : 0 ?>%</th>
-                        <th class="text-right py-1 px-2 discount"><?php echo isset($discount) ? number_format($discount,2) : 0 ?></th>
-                    </tr>
-                    <tr>
-                        <th class="text-right py-1 px-2" colspan="4">Tax <?php echo isset($tax_perc) ? $tax_perc : 0 ?>%</th>
-                        <th class="text-right py-1 px-2 tax"><?php echo isset($tax) ? number_format($tax,2) : 0 ?></th>
-                    </tr>
-                    <tr>
-                        <th class="text-right py-1 px-2" colspan="4">Total</th>
-                        <th class="text-right py-1 px-2 grand-total"><?php echo isset($amount) ? number_format($amount,2) : 0 ?></th>
-                    </tr>
-                </tfoot>
             </table>
             <div class="row">
                 <div class="col-md-6">
@@ -99,7 +76,9 @@ if($qry->num_rows >0){
     </div>
     <div class="card-footer py-1 text-center">
         <button class="btn btn-flat btn-success" type="button" id="print">Print</button>
+        <?php if($status != 2): ?>
         <a class="btn btn-flat btn-primary" href="<?php echo base_url.'/admin/index.php?page=purchase_order/manage_po&id='.(isset($id) ? $id : '') ?>">Edit</a>
+        <?php endif; ?>
         <a class="btn btn-flat btn-dark" href="<?php echo base_url.'/admin/index.php?page=purchase_order' ?>">Back To List</a>
     </div>
 </div>
@@ -113,16 +92,10 @@ if($qry->num_rows >0){
             <input type="hidden" name="item_id[]">
             <input type="hidden" name="unit[]">
             <input type="hidden" name="qty[]">
-            <input type="hidden" name="price[]">
-            <input type="hidden" name="total[]">
         </td>
         <td class="py-1 px-2 text-center unit">
         </td>
         <td class="py-1 px-2 item">
-        </td>
-        <td class="py-1 px-2 text-right cost">
-        </td>
-        <td class="py-1 px-2 text-right total">
         </td>
     </tr>
 </table>

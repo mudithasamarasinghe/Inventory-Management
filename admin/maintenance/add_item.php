@@ -39,13 +39,6 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                 <option value="5" <?php echo isset($unit) && $unit == 5 ? 'selected' : '' ?>>Pairs</option>
             </select>
         </div>
-        <div class="form-group">
-            <label for="status" class="control-label">Status</label>
-            <select name="status" id="status" class="form-control rounded-0" required>
-                <option value="1" <?php echo isset($status) && $status =="1" ? "selected": "1" ?> >Active</option>
-                <option value="0" <?php echo isset($status) && $status =="0" ? "selected": "0" ?>>Inactive</option>
-            </select>
-        </div>
 	</form>
 </div>
 <script>

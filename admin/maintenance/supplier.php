@@ -7,7 +7,6 @@
 	</div>
 	<div class="card-body">
 		<div class="container-fluid">
-        <div class="container-fluid">
 			<table class="table table-bordered table-striped">
 				<colgroup>
 					<col width="5%">
@@ -27,6 +26,7 @@
 						<th>Contact Person</th>
 						<th>Address</th>
 						<th>E-mail</th>
+                        <th>Telephone No</th>
 						<th>Status</th>
 						<th>Action</th>
 					</tr>
@@ -57,8 +57,6 @@
 				                    <span class="sr-only">Toggle Dropdown</span>
 				                  </button>
 				                  <div class="dropdown-menu" role="menu">
-				                    <a class="dropdown-item view_data" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>"><span class="fa fa-eye text-dark"></span> View</a>
-				                    <div class="dropdown-divider"></div>
 				                    <a class="dropdown-item edit_data" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>"><span class="fa fa-edit text-primary"></span> Edit</a>
 				                    <div class="dropdown-divider"></div>
 				                    <a class="dropdown-item delete_data" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>"><span class="fa fa-trash text-danger"></span> Delete</a>
@@ -69,7 +67,6 @@
 				</tbody>
 			</table>
 		</div>
-		</div>
 	</div>
 </div>
 <script>
@@ -78,7 +75,7 @@
 			_conf("Are you sure to delete this Supplier permanently?","delete_category",[$(this).attr('data-id')])
 		})
 		$('#create_new').click(function(){
-			uni_modal("<i class='fa fa-plus'></i> Add New Supplier","maintenance/manage_supplier.php","mid-large")
+			uni_modal("<i class='fa fa-plus'></i> Add New Supplier","maintenance/add_supplier.php","mid-large")
 		})
 		$('.edit_data').click(function(){
 			uni_modal("<i class='fa fa-edit'></i> Edit Supplier Detials","maintenance/manage_supplier.php?id="+$(this).attr('data-id'),"mid-large")

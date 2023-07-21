@@ -1,6 +1,4 @@
-<?php require_once('./../../config.php') ?>
-<?php 
-
+<?php
 if(isset($_GET['id'])){
    $qry = $conn->query("SELECT p.*,s.bomi_item_name FROM bill_of_materials p inner join bill_of_materials_items s on p.bom_id = s.bom_id  where p.bom_id = '{$_GET['id']}'");
  if($qry->num_rows >0){

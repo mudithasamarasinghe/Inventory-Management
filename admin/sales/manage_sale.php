@@ -48,10 +48,10 @@ if(isset($_GET['id'])){
                             <?php 
                                 $item_arr = array();
                                 $cost_arr = array();
-                                $item = $conn->query("SELECT * FROM `item_list` where status = 1 order by `name` asc");
+                                $item = $conn->query("SELECT * FROM `items` where status = 1 order by `name` asc");
                                 while($row=$item->fetch_assoc()):
                                     $item_arr[$row['id']] = $row;
-                                    $cost_arr[$row['id']] = $row['cost'];
+//                                    $cost_arr[$row['id']] = $row['cost'];
                                 endwhile;
                             ?>
                         <div class="col-md-3">

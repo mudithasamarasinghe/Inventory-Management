@@ -60,27 +60,26 @@
                                         data-toggle="dropdown">
                                     Action
                                 </button>
-                                <div class="dropdown-menu" role="menu">
+                                <div class="dropdown-menu" role="menu" >
                                     <?php if ($row['status'] !=2): ?>
-
                                         <a class="dropdown-item"
                                            href="<?php echo base_url . 'admin/index.php?page=receiving/manage_receiving&po_id=' . $row['id'] ?>"
                                            data-id="<?php echo $row['id'] ?>"><span
                                                     class="fa fa-boxes text-dark"></span> Receive</a>
                                         <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item"
+                                           href="<?php echo base_url . 'admin/index.php?page=purchase_order/manage_po&id=' . $row['id'] ?>"
+                                           data-id="<?php echo $row['id'] ?>"><span class="fa fa-edit text-primary"></span>
+                                            Edit</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item delete_data" href="javascript:void(0)"
+                                           data-id="<?php echo $row['id'] ?>"><span class="fa fa-trash text-danger"></span>
+                                            Delete</a>
+                                        <div class="dropdown-divider"></div>
                                     <?php endif; ?>
                                     <a class="dropdown-item"
                                        href="<?php echo base_url . 'admin/index.php?page=purchase_order/view_po&id=' . $row['id'] ?>"
                                        data-id="<?php echo $row['id'] ?>"><span class="fa fa-eye text-dark"></span> View</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item"
-                                       href="<?php echo base_url . 'admin/index.php?page=purchase_order/manage_po&id=' . $row['id'] ?>"
-                                       data-id="<?php echo $row['id'] ?>"><span class="fa fa-edit text-primary"></span>
-                                        Edit</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item delete_data" href="javascript:void(0)"
-                                       data-id="<?php echo $row['id'] ?>"><span class="fa fa-trash text-danger"></span>
-                                        Delete</a>
                                 </div>
                             </td>
                         </tr>

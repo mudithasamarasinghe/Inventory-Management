@@ -22,7 +22,6 @@ Class Master extends DBConnection {
 		}
 	}
 	function save_supplier(){
-
 		extract($_POST);
 		$data = "";
 		foreach($_POST as $k =>$v){
@@ -31,7 +30,6 @@ Class Master extends DBConnection {
 				$data .= " `{$k}`='{$v}' ";
 			}
 		}
-				echo json_encode($data);
 		$check = $this->conn->query("SELECT * FROM `suppliers` where `name` = '{$name}' ".(!empty($id) ? " and id != {$id} " : "")." ")->num_rows;
 		if($this->capture_err())
 			return $this->capture_err();
@@ -141,7 +139,7 @@ Class Master extends DBConnection {
 				$data .= " `{$k}`='{$v}' ";
 			}
 		}
-		$check = $this->conn->query("SELECT * FROM `item_list` where `name` = '{$name}' and `supplier_id` = '{$supplier_id}' ".(!empty($id) ? " and id != {$id} " : "")." ")->num_rows;
+		$check = $this->conn->query("SELECT * FROM `items` where `name` = '{$name}' and `supplier_id` = '{$supplier_id}' ".(!empty($id) ? " and id != {$id} " : "")." ")->num_rows;
 		if($this->capture_err())
 			return $this->capture_err();
 		if($check > 0){
@@ -151,10 +149,10 @@ Class Master extends DBConnection {
 			exit;
 		}
 		if(empty($id)){
-			$sql = "INSERT INTO `item_list` set {$data} ";
+			$sql = "INSERT INTO `items` set {$data} ";
 			$save = $this->conn->query($sql);
 		}else{
-			$sql = "UPDATE `item_list` set {$data} where id = '{$id}' ";
+			$sql = "UPDATE `items` set {$data} where id = '{$id}' ";
 			$save = $this->conn->query($sql);
 		}
 		if($save){
@@ -171,7 +169,7 @@ Class Master extends DBConnection {
 	}
 	function delete_item(){
 		extract($_POST);
-		$del = $this->conn->query("DELETE FROM `item_list` where id = '{$id}'");
+		$del = $this->conn->query("DELETE FROM `items` where id = '{$id}'");
 		if($del){
 			$resp['status'] = 'success';
 			$this->settings->set_flashdata('success',"Item  successfully deleted.");
@@ -182,74 +180,74 @@ Class Master extends DBConnection {
 		return json_encode($resp);
 
 	}
-	function save_po(){
-		if(empty($_POST['id'])){
-			$prefix = "PO";
-			$code = sprintf("%'.04d",1);
-			while(true){
-				$check_code = $this->conn->query("SELECT * FROM `purchase_orders` where po_code ='".$prefix.'-'.$code."' ")->num_rows;
-				if($check_code > 0){
-					$code = sprintf("%'.04d",$code+1);
-				}else{
-					break;
-				}
-			}
-			$_POST['po_code'] = $prefix."-".$code;
-		}
-		extract($_POST);
-		$data = "";
-		foreach($_POST as $k =>$v){
-			if(!in_array($k,array('id')) && !is_array($_POST[$k])){
-				if(!is_numeric($v))
-				$v= $this->conn->real_escape_string($v);
-				if(!empty($data)) $data .=", ";
-				$data .=" `{$k}` = '{$v}' ";
-			}
-		}
-		if(empty($id)){
-			$sql = "INSERT INTO `purchase_orders` set {$data}";
-		}else{
-			$sql = "UPDATE `purchase_orders` set {$data} where id = '{$id}'";
-		}
-		$save = $this->conn->query($sql);
-		if($save){
-			$resp['status'] = 'success';
-			if(empty($id))
-			$po_id = $this->conn->insert_id;
-			else
-			$po_id = $id;
-			$resp['id'] = $po_id;
-			$data = "";
-			foreach($item_id as $k =>$v){
-				if(!empty($data)) $data .=", ";
-				$data .= "('{$po_id}','{$v}','{$qty[$k]}','{$price[$k]}','{$unit[$k]}','{$total[$k]}')";
-			}
-			if(!empty($data)){
-				$this->conn->query("DELETE FROM `po_items` where po_id = '{$po_id}'");
-				$save = $this->conn->query("INSERT INTO `po_items` (`po_id`,`item_id`,`quantity`,`price`,`unit`,`total`) VALUES {$data}");
-				if(!$save){
-					$resp['status'] = 'failed';
-					if(empty($id)){
-						$this->conn->query("DELETE FROM `purchase_orders` where id '{$po_id}'");
-					}
-					$resp['msg'] = 'PO has failed to save. Error: '.$this->conn->error;
-					$resp['sql'] = "INSERT INTO `po_items` (`po_id`,`item_id`,`quantity`,`price`,`unit`,`total`) VALUES {$data}";
-				}
-			}
-		}else{
-			$resp['status'] = 'failed';
-			$resp['msg'] = 'An error occured. Error: '.$this->conn->error;
-		}
-		if($resp['status'] == 'success'){
-			if(empty($id)){
-				$this->settings->set_flashdata('success'," New Purchase Order was Successfully created.");
-			}else{
-				$this->settings->set_flashdata('success'," Purchase Order's Details Successfully updated.");
-			}
-		}
+    function save_po(){
+        if(empty($_POST['id'])){
+            $prefix = "PO";
+            $code = sprintf("%'.04d",1);
+            while(true){
+                $check_code = $this->conn->query("SELECT * FROM `purchase_orders` where po_code ='".$prefix.'-'.$code."' ")->num_rows;
+                if($check_code > 0){
+                    $code = sprintf("%'.04d",$code+1);
+                }else{
+                    break;
+                }
+            }
+            $_POST['po_code'] = $prefix."-".$code;
+        }
+        extract($_POST);
+        $data = "";
+        foreach($_POST as $k =>$v){
+            if(!in_array($k,array('id')) && !is_array($_POST[$k])){
+                if(!is_numeric($v))
+                    $v= $this->conn->real_escape_string($v);
+                if(!empty($data)) $data .=", ";
+                $data .=" `{$k}` = '{$v}' ";
+            }
+        }
+        if(empty($id)){
+            $sql = "INSERT INTO `purchase_orders` set {$data}";
+        }else{
+            $sql = "UPDATE `purchase_orders` set {$data} where id = '{$id}'";
+        }
+        $save = $this->conn->query($sql);
+        if($save){
+            $resp['status'] = 'success';
+            if(empty($id))
+                $po_id = $this->conn->insert_id;
+            else
+                $po_id = $id;
+            $resp['id'] = $po_id;
+            $data = "";
+            foreach($item_id as $k =>$v){
+                if(!empty($data)) $data .=", ";
+                $data .= "('{$po_id}','{$v}','{$qty[$k]}','{$unit[$k]}')";
+            }
+            if(!empty($data)){
+                $this->conn->query("DELETE FROM `po_items` where po_id = '{$po_id}'");
+                $save = $this->conn->query("INSERT INTO `po_items` (`po_id`,`item_id`,`quantity`,`unit`) VALUES {$data}");
+                if(!$save){
+                    $resp['status'] = 'failed';
+                    if(empty($id)){
+                        $this->conn->query("DELETE FROM `purchase_orders` where id '{$po_id}'");
+                    }
+                    $resp['msg'] = 'PO has failed to save. Error: '.$this->conn->error;
+                    $resp['sql'] = "INSERT INTO `po_items` (`po_id`,`item_id`,`quantity`,`unit`) VALUES {$data}";
+                }
+            }
+        }else{
+            $resp['status'] = 'failed';
+            $resp['msg'] = 'An error occured. Error: '.$this->conn->error;
+        }
+        if($resp['status'] == 'success'){
+            if(empty($id)){
+                $this->settings->set_flashdata('success'," New Purchase Order was Successfully created.");
+            }else{
+                $this->settings->set_flashdata('success'," Purchase Order's Details Successfully updated.");
+            }
+        }
 
-		return json_encode($resp);
-	}
+        return json_encode($resp);
+    }
 	function delete_po(){
 		extract($_POST);
 		$bo = $this->conn->query("SELECT * FROM back_orders where po_id = '{$id}'");
@@ -833,7 +831,6 @@ Class Master extends DBConnection {
 
     }
 }
-
 
 $Master = new Master();
 $action = !isset($_GET['f']) ? 'none' : strtolower($_GET['f']);

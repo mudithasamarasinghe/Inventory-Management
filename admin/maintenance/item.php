@@ -8,20 +8,22 @@
 	<div class="card-body">
 		<div class="container-fluid">
         <div class="container-fluid">
-			<table class="table table-hovered table-striped">
+			<table class="table table-bordered table-striped">
 				<colgroup>
 					<col width="5%">
+					<col width="18%">
+					<col width="10%">
+					<col width="10%">
 					<col width="15%">
-					<col width="25%">
-					<col width="20%">
 					<col width="15%">
-					<col width="20%">
+                    <col width="20%">
 				</colgroup>
-				<thead>
+				<thead class="text-center">
 					<tr>
 						<th>#</th>
 						<th>Date Created</th>
 						<th>Name</th>
+                        <th>Unit</th>
 						<th>Supplier</th>
 						<th>Status</th>
 						<th>Action</th>
@@ -37,6 +39,21 @@
 							<td class="text-center"><?php echo $i++; ?></td>
 							<td><?php echo date("Y-m-d H:i",strtotime($row['date_created'])) ?></td>
 							<td><?php echo $row['name'] ?></td>
+                            <td class="text-left">
+                                <?php if($row['unit'] == 0): ?>
+                                <span>Pieces</span>
+                                <?php elseif($row['unit'] == 1): ?>
+                                <span>Bundles</span>
+                                <?php elseif($row['unit'] == 2): ?>
+                                <span>Dozens</span>
+                                <?php elseif($row['unit'] == 3): ?>
+                                <span>Kits</span>
+                                <?php elseif($row['unit'] == 4): ?>
+                                    <span>Sets</span>
+                                <?php else: ?>
+                                    <span>Pairs</span>
+                                <?php endif; ?>
+                            </td>
 							<td><?php echo $row['supplier'] ?></td>
 							<td class="text-center">
                                 <?php if($row['status'] == 1): ?>
@@ -51,8 +68,7 @@
 				                    <span class="sr-only">Toggle Dropdown</span>
 				                  </button>
 				                  <div class="dropdown-menu" role="menu">
-				                    <a class="dropdown-item view_data" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>"><span class="fa fa-eye text-dark"></span> View</a>
-				                    <div class="dropdown-divider"></div>
+
 				                    <a class="dropdown-item edit_data" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>"><span class="fa fa-edit text-primary"></span> Edit</a>
 				                    <div class="dropdown-divider"></div>
 				                    <a class="dropdown-item delete_data" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>"><span class="fa fa-trash text-danger"></span> Delete</a>
@@ -70,16 +86,13 @@
 	$(document).ready(function(){
 		$('.delete_data').click(function(){
 			_conf("Are you sure to delete this Item permanently?","delete_category",[$(this).attr('data-id')])
-		})
+		});
 		$('#create_new').click(function(){
-			uni_modal("<i class='fa fa-plus'></i> Add New Item","maintenance/manage_item.php","mid-large")
-		})
+			uni_modal("<i class='fa fa-plus'></i> Add New Item","maintenance/add_item.php","mid-large")
+		});
 		$('.edit_data').click(function(){
 			uni_modal("<i class='fa fa-edit'></i> Edit Item Details","maintenance/manage_item.php?id="+$(this).attr('data-id'),"mid-large")
-		})
-		$('.view_data').click(function(){
-			uni_modal("<i class='fa fa-box'></i> Item Details","maintenance/view_item.php?id="+$(this).attr('data-id'),"")
-		})
+		});
 		$('.table td,.table th').addClass('py-1 px-2 align-middle')
 		$('.table').dataTable();
 	})
