@@ -6,17 +6,19 @@
 		</div>
 	</div>
 	<div class="card-body">
-		<div class="container-fluid">
+        <div class="container-fluid">
+            <div class="container-fluid">
 			<table class="table table-bordered table-striped">
 				<colgroup>
 					<col width="5%">
 					<col width="10%">
 					<col width="10%">
 					<col width="10%">
-					<col width="25%">
-					<col width="15%">
+					<col width="20%">
 					<col width="10%">
 					<col width="15%">
+					<col width="10%">
+                    <col width="10%">
 				</colgroup>
 				<thead>
 					<tr>
@@ -44,6 +46,7 @@
 							<td class=""><?php echo $row['cperson'] ?></td>
 							<td><?php echo $row['address'] ?></td>
 							<td><?php echo $row['email'] ?></td>
+                            <td><?php echo $row['contact'] ?></td>
 							<td class="text-center">
                                 <?php if($row['status'] == 1): ?>
                                     <span class="badge badge-success rounded-pill">Active</span>
@@ -57,6 +60,8 @@
 				                    <span class="sr-only">Toggle Dropdown</span>
 				                  </button>
 				                  <div class="dropdown-menu" role="menu">
+                                      <a class="dropdown-item view_data" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>"><span class="fa fa-eye text-primary"></span> View</a>
+                                      <div class="dropdown-divider"></div>
 				                    <a class="dropdown-item edit_data" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>"><span class="fa fa-edit text-primary"></span> Edit</a>
 				                    <div class="dropdown-divider"></div>
 				                    <a class="dropdown-item delete_data" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>"><span class="fa fa-trash text-danger"></span> Delete</a>
@@ -67,6 +72,7 @@
 				</tbody>
 			</table>
 		</div>
+        </div>
 	</div>
 </div>
 <script>
