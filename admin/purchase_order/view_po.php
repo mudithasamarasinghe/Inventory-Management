@@ -28,17 +28,15 @@ if($qry->num_rows >0){
             <h4 class="text-info">Orders</h4>
             <table class="table table-striped table-bordered" id="list">
                 <colgroup>
-                    <col width="10%">
-                    <col width="10%">
                     <col width="30%">
-                    <col width="25%">
-                    <col width="25%">
+                    <col width="30%">
+                    <col width="20%">
                 </colgroup>
                 <thead>
                     <tr class="text-light bg-navy">
-                        <th class="text-center py-1 px-2">Qty</th>
-                        <th class="text-center py-1 px-2">Unit</th>
                         <th class="text-center py-1 px-2">Item</th>
+                        <th class="text-center py-1 px-2">Unit</th>
+                        <th class="text-center py-1 px-2">Qty</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -47,12 +45,12 @@ if($qry->num_rows >0){
                     while($row = $qry->fetch_assoc()):
                     ?>
                     <tr>
-                        <td class="py-1 px-2 text-center"><?php echo number_format($row['quantity'],2) ?></td>
-                        <td class="py-1 px-2 text-center"><?php echo ($row['unit']) ?></td>
                         <td class="py-1 px-2">
                             <?php echo $row['name'] ?>
                             <?php echo $row['description'] ?>
                         </td>
+                        <td class="py-1 px-2 text-center"><?php echo ($row['unit']) ?></td>
+                        <td class="py-1 px-2 text-center"><?php echo number_format($row['quantity'],2) ?></td>
                     </tr>
 
                     <?php endwhile; ?>

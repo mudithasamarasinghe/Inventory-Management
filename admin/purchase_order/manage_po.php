@@ -34,14 +34,23 @@ if(isset($_GET['id'])){
                         <?php
                         // Fetch the last PO code from the database
                         $qry = $conn->query("SELECT po_code FROM `purchase_orders` ORDER BY po_code DESC LIMIT 1");
-                        $last_po_code = $qry->fetch_assoc()['po_code'];
+                        if($qry->num_rows >0) {
+                            $last_po_code = $qry->fetch_assoc()['po_code'];
 
-                        // Extract the numeric part from the last PO code and increment it
-                        $numeric_part = intval(substr($last_po_code, 3));
-                        $next_numeric_part = $numeric_part + 1;
+                            // Set the initial PO code as "PO-001" if there are no records in the database
+//                            if (empty($last_po_code)) {
+//                                $next_po_code = "PO-001";
+//                            } else {
+                                // Extract the numeric part from the last PO code and increment it
+                                $numeric_part = intval(substr($last_po_code, 3));
+                                $next_numeric_part = $numeric_part + 1;
 
-                        // Concatenate the prefix "PO-" with the incremented numeric part to get the next PO code
-                        $next_po_code = "PO-" . sprintf("%03d", $next_numeric_part);
+                                // Concatenate the prefix "PO-" with the incremented numeric part to get the next PO code
+                                $next_po_code = "PO-" . sprintf("%03d", $next_numeric_part);
+//                            }
+                        } else {
+                            $next_po_code = "PO-001";
+                        }
                         ?>
 
                         <label class="control-label text-info">P.O. Code</label>
@@ -69,9 +78,11 @@ if(isset($_GET['id'])){
                     <div class="row justify-content-center align-items-end">
                         <?php
                         $item_arr = array();
+                        $unit_arr = array();
                         $item = $conn->query("SELECT * FROM `items` where status = 1 order by `name` asc");
                         while($row=$item->fetch_assoc()):
                             $item_arr[$row['supplier_id']][$row['id']] = $row;
+                            $unit_arr[$row['unit']][$row['id']] = $row;
                         endwhile;
                         ?>
                         <div class="col-md-3">
@@ -126,8 +137,11 @@ if(isset($_GET['id'])){
                                 <td class="py-1 px-2 text-center">
                                     <button class="btn btn-outline-danger btn-sm rem_row" type="button"><i class="fa fa-times"></i></button>
                                 </td>
-                                <td class="py-1 px-2 text-center qty">
-                                    <span class="visible"><?php echo number_format($row['quantity']); ?></span>
+                                <td class="py-1 px-2 text-center item">
+                                    <span class="visible">
+                                        <?php echo $row['name']; ?>
+                                        <?php echo $row['description']; ?>
+                                        </span>
                                     <input type="hidden" name="item_id[]" value="<?php echo $row['item_id']; ?>">
                                     <input type="hidden" name="unit[]" value="<?php echo $row['unit']; ?>">
                                     <input type="hidden" name="qty[]" value="<?php echo $row['quantity']; ?>">
@@ -135,9 +149,8 @@ if(isset($_GET['id'])){
                                 <td class="py-1 px-2 text-center unit">
                                     <?php echo $row['unit']; ?>
                                 </td>
-                                <td class="py-1 px-2 item">
-                                    <?php echo $row['name']; ?> <br>
-                                    <?php echo $row['description']; ?>
+                                <td class="py-1 px-2 qty">
+                                    <?php echo number_format($row['quantity']); ?>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -165,21 +178,21 @@ if(isset($_GET['id'])){
         <td class="py-1 px-2 text-center">
             <button class="btn btn-outline-danger btn-sm rem_row" type="button"><i class="fa fa-times"></i></button>
         </td>
+        <td class="py-1 px-2 item">
+        </td>
+        <td class="py-1 px-2 text-center unit">
+        </td>
         <td class="py-1 px-2 text-center qty">
             <span class="visible"></span>
             <input type="hidden" name="item_id[]">
             <input type="hidden" name="unit[]">
             <input type="hidden" name="qty[]">
         </td>
-        <td class="py-1 px-2 text-center unit">
-        </td>
-        <td class="py-1 px-2 item">
-        </td>
+
     </tr>
 </table>
 <script>
     var items = $.parseJSON('<?php echo json_encode($item_arr) ?>')
-
     $(function(){
         $('.select2').select2({
             placeholder:"Please select here",
@@ -189,13 +202,39 @@ if(isset($_GET['id'])){
             placeholder:"Please select supplier first",
             width:'resolve',
         })
+        $('#item_id').change(function(){
+            //$('input#unit').val("ONE!");
+            alert(getUnit('<?php echo json_encode($item_arr) ?>', $('#item_id').val()))
+
+        })
+
+        function getUnit(items, id){
+            for(var x in items){
+                alert(id+'--id---x-'+x);
+                if(items[x].id == id)
+                {
+                   return items[x].unit;
+                }
+
+                    //if(items[x].id && items[x].id.split(",").indexOf(id.toString())!=-1) return items[x].unit;
+
+            }
+
+            return "Not Found";
+
+        }
+
+
+
 
         $('#supplier_id').change(function(){
             var supplier_id = $(this).val()
             $('#item_id').select2('destroy')
 
             if(!!items[supplier_id]){
+
                 $('#item_id').html('')
+
                 var list_item = new Promise(resolve=>{
                     Object.keys(items[supplier_id]).map(function(k){
                         var row = items[supplier_id][k]
@@ -207,6 +246,7 @@ if(isset($_GET['id'])){
                     resolve()
                 })
                 list_item.then(function(){
+
                     $('#item_id').select2({
                         placeholder:"Please select item here",
                         width:'resolve',
@@ -214,7 +254,7 @@ if(isset($_GET['id'])){
                 })
             }else{
                 list_item.then(function(){
-                    alert("done");
+
                     $('#supplier_id').attr('disabled','disabled');
                     $('#item_id').select2({
                         placeholder:"No Items Listed yet",

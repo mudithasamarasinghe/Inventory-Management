@@ -40,20 +40,8 @@
 							<td><?php echo date("Y-m-d H:i",strtotime($row['date_created'])) ?></td>
 							<td><?php echo $row['name'] ?></td>
                             <td class="text-left">
-                                <?php if($row['unit'] == 0): ?>
-                                <span>Pieces</span>
-                                <?php elseif($row['unit'] == 1): ?>
-                                <span>Bundles</span>
-                                <?php elseif($row['unit'] == 2): ?>
-                                <span>Dozens</span>
-                                <?php elseif($row['unit'] == 3): ?>
-                                <span>Kits</span>
-                                <?php elseif($row['unit'] == 4): ?>
-                                    <span>Sets</span>
-                                <?php else: ?>
-                                    <span>Pairs</span>
-                                <?php endif; ?>
-                            </td>
+                                <?php echo $row['unit'] ?>
+                                </td>
 							<td><?php echo $row['supplier'] ?></td>
 							<td class="text-center">
                                 <?php if($row['status'] == 1): ?>

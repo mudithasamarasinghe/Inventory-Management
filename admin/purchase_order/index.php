@@ -12,12 +12,12 @@
                 <table class="table table-bordered table-stripped">
                     <colgroup>
                         <col width="10%">
-                        <col width="20%">
+                        <col width="15%">
                         <col width="12%">
+                        <col width="18%">
+                        <col width="10%">
                         <col width="15%">
-                        <col width="13%">
-                        <col width="15%">
-                        <col width="15%">
+                        <col width="10%">
                     </colgroup>
                     <thead>
                     <tr class="text-center">
@@ -27,7 +27,7 @@
                         <th>Supplier Name</th>
                         <th>No of Items</th>
                         <th>Status</th>
-                        <th></th>
+                        <th>Action</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -37,13 +37,13 @@
                     while ($row = $qry->fetch_assoc()):
                         $row['items'] = $conn->query("SELECT count(item_id) as `items` FROM `po_items` where po_id = '{$row['id']}' ")->fetch_assoc()['items'];
                         ?>
-                        <tr class="text-center">
-                            <td><?php echo $i++; ?></td>
-                            <td><?php echo date("Y-m-d H:i", strtotime($row['date_created'])) ?></td>
-                            <td><?php echo $row['po_code'] ?></td>
+                        <tr>
+                            <td class="text-center"><?php echo $i++; ?></td>
+                            <td class="text-center"><?php echo date("Y-m-d H:i", strtotime($row['date_created'])) ?></td>
+                            <td class="text-center"><?php echo $row['po_code'] ?></td>
                             <td><?php echo $row['supplier_name'] ?></td>
-                            <td><?php echo number_format($row['items']) ?></td>
-                            <td>
+                            <td class="text-center"><?php echo number_format($row['items']) ?></td>
+                            <td class="text-center">
                                 <?php if ($row['status'] == 2): ?>
                                     <span class="badge badge-primary rounded-pill">Fully Received</span>
                                 <?php elseif ($row['status'] == 1): ?>

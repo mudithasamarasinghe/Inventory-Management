@@ -30,13 +30,11 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 		</div>
         <div class="form-group">
             <label for="orderedUnit" class="control-label">Unit</label>
+
             <select name="unit" id="unit" class="custom-select selevt">
-                <option value="0" <?php echo isset($unit) && $unit == 0 ? 'selected' : '' ?>>Pieces</option>
-                <option value="1" <?php echo isset($unit) && $unit == 1 ? 'selected' : '' ?>>Bundles</option>
-                <option value="2" <?php echo isset($unit) && $unit == 2 ? 'selected' : '' ?>>Dozens</option>
-                <option value="3" <?php echo isset($unit) && $unit == 3 ? 'selected' : '' ?>>Kits</option>
-                <option value="4" <?php echo isset($unit) && $unit == 4 ? 'selected' : '' ?>>Sets</option>
-                <option value="5" <?php echo isset($unit) && $unit == 5 ? 'selected' : '' ?>>Pairs</option>
+                <option value="Pieces" <?php echo isset($unit) && $unit == "Pieces" ? 'selected' : '' ?>>Pieces</option>
+                <option value="Boxes" <?php echo isset($unit) && $unit == "Boxes" ? 'selected' : '' ?>>Boxes</option>
+                <option value="Kits" <?php echo isset($unit) && $unit == "Kits" ? 'selected' : '' ?>>Kits</option>
             </select>
         </div>
         <div class="form-group">
