@@ -37,10 +37,6 @@ if(isset($_GET['id'])){
                         if($qry->num_rows >0) {
                             $last_po_code = $qry->fetch_assoc()['po_code'];
 
-                            // Set the initial PO code as "PO-001" if there are no records in the database
-//                            if (empty($last_po_code)) {
-//                                $next_po_code = "PO-001";
-//                            } else {
                                 // Extract the numeric part from the last PO code and increment it
                                 $numeric_part = intval(substr($last_po_code, 3));
                                 $next_numeric_part = $numeric_part + 1;
@@ -82,7 +78,7 @@ if(isset($_GET['id'])){
                         $item = $conn->query("SELECT * FROM `items` where status = 1 order by `name` asc");
                         while($row=$item->fetch_assoc()):
                             $item_arr[$row['supplier_id']][$row['id']] = $row;
-                            $unit_arr[$row['unit']][$row['id']] = $row;
+                            $unit_arr[$row['id']] = $row['unit'];
                         endwhile;
                         ?>
                         <div class="col-md-3">
@@ -130,7 +126,7 @@ if(isset($_GET['id'])){
                     <tbody>
                     <?php
                     if(isset($id)):
-                        $qry = $conn->query("SELECT p.*,i.name,i.description FROM `po_items` p inner join items i on p.item_id = i.id where p.po_id = '{$id}'");
+                        $qry = $conn->query("SELECT p.*,i.name,i.description FROM `po_items` p left join items i on p.item_id = i.id where p.po_id = '{$id}'");
                         while($row = $qry->fetch_assoc()):
                             ?>
                             <tr>
@@ -193,6 +189,7 @@ if(isset($_GET['id'])){
 </table>
 <script>
     var items = $.parseJSON('<?php echo json_encode($item_arr) ?>')
+    var units = $.parseJSON('<?php echo json_encode($unit_arr) ?>')
     $(function(){
         $('.select2').select2({
             placeholder:"Please select here",
@@ -203,29 +200,10 @@ if(isset($_GET['id'])){
             width:'resolve',
         })
         $('#item_id').change(function(){
-            //$('input#unit').val("ONE!");
-            alert(getUnit('<?php echo json_encode($item_arr) ?>', $('#item_id').val()))
-
+            var item = $('#item_id').val()
+            var tunit = units[item];
+            $('#unit').val(tunit);
         })
-
-        function getUnit(items, id){
-            for(var x in items){
-                alert(id+'--id---x-'+x);
-                if(items[x].id == id)
-                {
-                   return items[x].unit;
-                }
-
-                    //if(items[x].id && items[x].id.split(",").indexOf(id.toString())!=-1) return items[x].unit;
-
-            }
-
-            return "Not Found";
-
-        }
-
-
-
 
         $('#supplier_id').change(function(){
             var supplier_id = $(this).val()
@@ -241,6 +219,7 @@ if(isset($_GET['id'])){
                         var opt = $('<option>')
                         opt.attr('value',row.id)
                         opt.text(row.name)
+
                         $('#item_id').append(opt)
                     })
                     resolve()
@@ -262,6 +241,10 @@ if(isset($_GET['id'])){
                     })
                 })
             }
+            var item = $('#item_id').val()
+            var tunit = units[item];
+            $('#unit').val(tunit);
+            $('#unit').attr('readonly','readonly')
         })
 
         $('#add_to_list').click(function(){

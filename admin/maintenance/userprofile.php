@@ -54,9 +54,10 @@
 				                    <div class="dropdown-divider"></div>
 				                    <a class="dropdown-item delete_data" href="javascript:void(0)" data-id="<?php echo $row['profile_id'] ?>"><span class="fa fa-trash text-danger"></span> Delete</a>
 				                   <div class="dropdown-divider"></div>
-								   <a class="dropdown-item open_data" href="javascript:void(0)" data-id="<?php echo $row['profile_id'] ?>"><span class="fa fa-trash text-danger"></span> Include roles</a>
+								   <a class="dropdown-item open_data" href="javascript:void(0)" data-id="<?php echo $row['profile_id'] ?>"><span class="fa fa-list-ol text-info"></span> Include Roles</a>
 				                   <div class="dropdown-divider"></div>
-				                    
+								   <a class="dropdown-item alert_data" href="javascript:void(0)" data-id="<?php echo $row['profile_id'] ?>"><span class="fa fa-exclamation-circle text-warning"></span> Include Alerts</a>
+				                   <div class="dropdown-divider"></div>				                    
 								  </div>
 							</td>
 						</tr>
@@ -78,6 +79,9 @@
 		
 		$('.open_data').click(function(){
 		uni_modal("<i class='fa fa-edit'></i> Include roles to profile","maintenance/rolestoprofiles.php?id="+$(this).attr('data-id'),"mid-large")
+		})
+       $('.alert_data').click(function(){
+		uni_modal("<i class='fa fa-edit'></i> Include alerts to profile","maintenance/alertstoprofiles.php?id="+$(this).attr('data-id'),"mid-large")
 		})
 		
 		$('.edit_data').click(function(){

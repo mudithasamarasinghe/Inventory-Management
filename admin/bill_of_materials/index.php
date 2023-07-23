@@ -7,11 +7,12 @@
 	</div>
 	<div class="card-body">
         <div class="container-fluid">
-			<table id="example" class="display" style="width:100%">
+			<table class="table table-bordered table-stripped">
 			                <colgroup>
                     <col width="2%">
                     <col width="8%">
                     <col width="30%">
+					<col width="25%">
                     <col width="25%">
                     <col width="25%">
                 </colgroup>
@@ -20,6 +21,7 @@
                             <th>#</th>                           
                            <th>BOM Id.</th>
                             <th>BOM</th>
+							<th>BOM Type</th>
 							 <th>Date Created</th>
                             <th >Status</th>
                             <th>Action</th>
@@ -36,6 +38,7 @@
                                 <td class="text-center"><?php echo $i++; ?></td>
 								<td align="center"><?php echo $row['bom_id'] ?></td>
                                <td><?php echo $row['bom_device_name'] ?></td>
+							   <td><?php echo $row['bom_type'] ?></td>
                            	   <td><?php echo date("Y-m-d H:i",strtotime($row['date_created'])) ?></td>
                                 <td class="text-l">
                                     <?php if($row['status'] == 0): ?>
@@ -53,9 +56,9 @@
                                     <div class="dropdown-menu" role="menu">
                                     
                                         <a class="dropdown-item" href="<?php echo base_url.'admin/index.php?page=bill_of_materials/view_bom&id='.$row['bom_id'] ?>" data-id="<?php echo $row['bom_id'] ?>"><span class="fa fa-eye text-dark"></span> View</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="<?php echo base_url.'admin/index.php?page=bill_of_materials/manage_bom&id='.$row['bom_id'] ?>" data-id="<?php echo $row['bom_id'] ?>"><span class="fa fa-edit text-primary"></span> Edit</a>
-										
+										      <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item edit_data" href="javascript:void(0)" data-id="<?php echo $row['bom_id'] ?>"><span class="fa fa-edit text-primary"></span> Edit</a>
+                        
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item delete_data" href="javascript:void(0)" data-id="<?php echo $row['bom_id'] ?>"><span class="fa fa-trash text-danger"></span> Delete</a>
                                     </div>
@@ -74,6 +77,9 @@
 		})
 		$('.view_details').click(function(){
 			uni_modal("Payment Details","transaction/view_payment.php?id="+$(this).attr('data-id'),'mid-large')
+		})
+		$('.edit_data').click(function(){
+			uni_modal("Create a new BOM","bill_of_materials/edit_bom.php?id="+$(this).attr('data-id'),'mid-large')
 		})
 		$('.create_details').click(function(){
 			uni_modal("Create a new BOM","bill_of_materials/create_bom.php?id="+$(this).attr('data-id'),'mid-large')

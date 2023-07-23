@@ -1,4 +1,5 @@
 <?php require_once('./../../config.php') ?>
+
    <style>
     #uni_modal .modal-footer{
         display:none;
@@ -17,7 +18,7 @@
 						<input type="text" name="bom_device_name" id="bom_device_name" class="form-control rounded-0" value="<?php echo isset($name) ? $name : ''; ?>"></dd>
 						 <dt class="text-info">BOM Type:</dt>
                         <dd class="pl-3">
-						<input type="text" name="bom_device_type" id="bom_device_type" class="form-control rounded-0" value=""></dd>
+						<input type="text" name="bom_type" id="bom_type" class="form-control rounded-0" value=""></dd>
 					
 
 

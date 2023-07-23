@@ -12,12 +12,18 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 	alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
 </script>
 <?php endif;?>
+<form action="upload.php" method="post" enctype="multipart/form-data">
+  Select image to upload:
+  <input type="file" name="fileToUpload" id="fileToUpload">
+  <input type="submit" value="Upload Image" name="submit">
+</form>
+
 <div class="card card-outline card-primary">
 	<div class="card-body">
 		<div class="container-fluid">
 			<div id="msg"></div>
 			<form action="" id="manage-user">	
-				<input type="hidden" name="id" value="<?php echo isset($meta['id']) ? $meta['id']: '' ?>">
+				<input type="text" name="id" value="<?php echo isset($_GET['id']) ? $_GET['id'] : '' ?>">
 				<div class="form-group col-6">
 					<label for="name">First Name</label>
 					<input type="text" name="firstname" id="firstname" class="form-control" value="<?php echo isset($meta['firstname']) ? $meta['firstname']: '' ?>" required>
@@ -39,11 +45,19 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 				</div>
 				<div class="form-group col-6">
 					<label for="type">User Type</label>
-					<select name="type" id="type" class="custom-select" value="<?php echo isset($meta['type']) ? $meta['type']: '' ?>" required>
-						<option value="1" <?php echo isset($type) && $type == 1 ? 'selected': '' ?>>Manager</option>
-						<option value="2"> <?php echo isset($type) && $type == 2 ? 'selected': '' ?>Receiving Clerk</option>
-                        <option value="3"> <?php echo isset($type) && $type == 3 ? 'selected': '' ?>Inventory Analyst</option>
-					</select>
+					
+					
+					
+					 <select name="type" id="type" class="custom-select select2">
+                            <option <?php echo !isset($profile_id) ? 'selected' : '' ?> disabled></option>
+                            <?php 
+                            $adminprop = $conn->query("SELECT * FROM `admin_profiles` where status = 1 order by `profile_name` asc");
+                            while($row=$adminprop->fetch_assoc()):
+                            ?>
+                            <option value="<?php echo $row['profile_id'] ?>" <?php echo isset($type) && $type == $row['profile_id'] ? "selected" : "" ?> ><?php echo $row['profile_name'] ?></option>
+                            <?php endwhile; ?>
+                            </select>
+				
 				</div>
 				<div class="form-group col-6">
 					<label for="" class="control-label">Avatar</label>
@@ -62,7 +76,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 			<div class="col-md-12">
 				<div class="row">
 					<button class="btn btn-sm btn-primary mr-2" form="manage-user">Save</button>
-					<a class="btn btn-sm btn-secondary" href="./?page=user/list">Cancel</a>
+					<a class="btn btn-sm btn-secondary" href="index.php?page=user/list">Cancel</a>
 				</div>
 			</div>
 		</div>
@@ -75,6 +89,8 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 		border-radius: 100% 100%;
 	}
 </style>
+<?php 
+if ($_GET['ft'] == "fedit" ) { ?>
 <script>
 	$(function(){
 		$('.select2').select2({
@@ -92,6 +108,50 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 	    }
 	}
 	$('#manage-user').submit(function(e){
+		
+		e.preventDefault();
+		var _this = $(this)
+		start_loader()
+		$.ajax({
+			url:_base_url_+'classes/Users.php?f=esave',
+			data: new FormData($(this)[0]),
+		    cache: false,
+		    contentType: false,
+		    processData: false,
+		    method: 'POST',
+		    type: 'POST',
+			success:function(resp){
+				if(resp ==1){
+					location.href = 'index.php?page=user/list';
+				}else{
+					$('#msg').html('<div class="alert alert-danger">Username already exist</div>')
+					$("html, body").animate({ scrollTop: 0 }, "fast");
+				}
+                end_loader()
+			}
+		})
+	})
+
+</script>
+<?php } else { ?>
+<script>
+	$(function(){
+		$('.select2').select2({
+			width:'resolve'
+		})
+	})
+	function displayImg(input,_this) {
+	    if (input.files && input.files[0]) {
+	        var reader = new FileReader();
+	        reader.onload = function (e) {
+	        	$('#cimg').attr('src', e.target.result);
+	        }
+
+	        reader.readAsDataURL(input.files[0]);
+	    }
+	}
+	$('#manage-user').submit(function(e){
+		
 		e.preventDefault();
 		var _this = $(this)
 		start_loader()
@@ -105,7 +165,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 		    type: 'POST',
 			success:function(resp){
 				if(resp ==1){
-					location.href = './?page=user/list';
+					location.href = 'index.php?page=user/list';
 				}else{
 					$('#msg').html('<div class="alert alert-danger">Username already exist</div>')
 					$("html, body").animate({ scrollTop: 0 }, "fast");
@@ -116,3 +176,4 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 	})
 
 </script>
+<?php } ?> 

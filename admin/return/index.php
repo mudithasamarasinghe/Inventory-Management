@@ -12,9 +12,11 @@
                     <colgroup>
                         <col width="5%">
                         <col width="15%">
-                        <col width="25%">
-                        <col width="25%">
                         <col width="10%">
+                        <col width="10%">
+                        <col width="10%">
+                        <col width="15%">
+						<col width="5%">
                         <col width="10%">
                     </colgroup>
                     <thead>
@@ -23,6 +25,8 @@
                             <th>Date Created</th>
                             <th>Return Code</th>
                             <th>Supplier</th>
+							<th>Approved By</th>
+							<th>Approved Date</th>
                             <th>Items</th>
                             <th>Action</th>
                         </tr>
@@ -30,7 +34,7 @@
                     <tbody>
                         <?php 
                         $i = 1;
-                        $qry = $conn->query("SELECT r.*, s.name as supplier FROM `return_list` r inner join suppliers s on r.supplier_id = s.id order by r.`date_created` desc");
+                        $qry = $conn->query("SELECT r.*, s.name as supplier FROM `returns` r inner join suppliers s on r.supplier_id = s.id order by r.`date_created` desc");
                         while($row = $qry->fetch_assoc()):
                             $row['items'] = count(explode(',',$row['stock_ids']));
                         ?>
@@ -38,7 +42,13 @@
                                 <td class="text-center"><?php echo $i++; ?></td>
                                 <td><?php echo date("Y-m-d H:i",strtotime($row['date_created'])) ?></td>
                                 <td><?php echo $row['return_code'] ?></td>
-                                <td><?php echo $row['supplier'] ?></td>
+								<td><?php echo $row['supplier'] ?></td>
+								<td><?php echo $row['return_approval'] ?></td>
+								<?php if ($row['date_approval']<>'1970-01-01 00:00:01'){ ?>
+								<td><?php echo $row['date_approval'];?></td>
+								<?php } else { ?>
+								<td>&nbsp;</td>
+                                <?php } ?>
                                 <td class="text-right"><?php echo number_format($row['items']) ?></td>
                                 <td align="center">
                                     <button type="button" class="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">

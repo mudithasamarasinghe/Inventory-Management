@@ -87,7 +87,7 @@ if($qry->num_rows >0){
     </div>
     <div class="card-footer py-1 text-center">
         <button class="btn btn-flat btn-success" type="button" id="print">Print</button>
-        <a class="btn btn-flat btn-primary" href="<?php echo base_url.'/admin/index.php?page=bill_of_materials/manage_bom&id='.(isset($id) ? $id : '') ?>">Edit</a>
+        <a class="btn btn-flat btn-primary" href="<?php echo base_url.'/admin/index.php?page=bill_of_materials/manage_bom&id='.(isset($bom_id) ? $bom_id : '') ?>">Edit</a>
         <a class="btn btn-flat btn-dark" href="<?php echo base_url.'/admin/index.php?page=bill_of_materials' ?>">Back To List</a>
     </div>
 </div>

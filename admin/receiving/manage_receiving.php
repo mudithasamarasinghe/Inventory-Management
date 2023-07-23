@@ -88,7 +88,7 @@ if(isset($_GET['bo_id'])){
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="supplier_id" class="control-label text-info">Supplier</label>
-                            <select id="supplier_id" name="supplier_id" class="custom-select select2">
+                            <select id="supplier_id" name="supplier_id" class="custom-select select2" readonly="">
                             <option <?php echo !isset($supplier_id) ? 'selected' : '' ?> disabled></option>
                             <?php 
                             $supplier = $conn->query("SELECT * FROM `suppliers` where status = 1 order by `name` asc");
@@ -106,9 +106,6 @@ if(isset($_GET['bo_id'])){
                         <col width="5%">
                         <col width="10%">
                         <col width="10%">
-                        <col width="25%">
-                        <col width="25%">
-                        <col width="25%">
                     </colgroup>
                     <thead>
                         <tr class="text-light bg-navy">
@@ -116,20 +113,16 @@ if(isset($_GET['bo_id'])){
                             <th class="text-center py-1 px-2">Qty</th>
                             <th class="text-center py-1 px-2">Unit</th>
                             <th class="text-center py-1 px-2">Item</th>
-                            <th class="text-center py-1 px-2">Cost</th>
-                            <th class="text-center py-1 px-2">Total</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php 
-                        $total = 0;
+                        <?php
                         if(isset($po_id)):
                         if(!isset($bo_id))
                         $qry = $conn->query("SELECT p.*,i.name,i.description FROM `po_items` p inner join items i on p.item_id = i.id where p.po_id = '{$po_id}'");
                         else
                         $qry = $conn->query("SELECT b.*,i.name,i.description FROM `bo_items` b inner join items i on b.item_id = i.id where b.bo_id = '{$bo_id}'");
                         while($row = $qry->fetch_assoc()):
-                            $total += $row['total'];
                             $row['qty'] = $row['quantity'];
                             if(isset($stock_ids)){
                                 // echo "SELECT * FROM `stock_list` where id in ($stock_ids) and item_id = '{$row['item_id']}'";
@@ -146,8 +139,6 @@ if(isset($_GET['bo_id'])){
                                 <input type="hidden" name="item_id[]" value="<?php echo $row['item_id']; ?>">
                                 <input type="hidden" name="unit[]" value="<?php echo $row['unit']; ?>">
                                 <input type="hidden" name="oqty[]" value="<?php echo $row['quantity']; ?>">
-                                <input type="hidden" name="price[]" value="<?php echo $row['price']; ?>">
-                                <input type="hidden" name="total[]" value="<?php echo $row['total']; ?>">
                             </td>
                             <td class="py-1 px-2 text-center unit">
                             <?php echo $row['unit']; ?>
@@ -156,40 +147,10 @@ if(isset($_GET['bo_id'])){
                             <?php echo $row['name']; ?> <br>
                             <?php echo $row['description']; ?>
                             </td>
-                            <td class="py-1 px-2 text-right cost">
-                            <?php echo number_format($row['price']); ?>
-                            </td>
-                            <td class="py-1 px-2 text-right total">
-                            <?php echo number_format($row['total']); ?>
-                            </td>
                         </tr>
                         <?php endwhile; ?>
                         <?php endif; ?>
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <th class="text-right py-1 px-2" colspan="5">Sub Total</th>
-                            <th class="text-right py-1 px-2 sub-total">0</th>
-                        </tr>
-                        <tr>
-                            <th class="text-right py-1 px-2" colspan="5">Discount <input style="width:40px !important" name="discount_perc" class='' type="number" min="0" max="100" value="<?php echo isset($discount_perc) ? $discount_perc : 0 ?>">%
-                                <input type="hidden" name="discount" value="<?php echo isset($discount) ? $discount : 0 ?>">
-                            </th>
-                            <th class="text-right py-1 px-2 discount"><?php echo isset($discount) ? number_format($discount) : 0 ?></th>
-                        </tr>
-                        <tr>
-                            <th class="text-right py-1 px-2" colspan="5">Tax <input style="width:40px !important" name="tax_perc" class='' type="number" min="0" max="100" value="<?php echo isset($tax_perc) ? $tax_perc : 0 ?>">%
-                                <input type="hidden" name="tax" value="<?php echo isset($discount) ? $discount : 0 ?>">
-                            </th>
-                            <th class="text-right py-1 px-2 tax"><?php echo isset($tax) ? number_format($tax) : 0 ?></th>
-                        </tr>
-                        <tr>
-                            <th class="text-right py-1 px-2" colspan="5">Total
-                                <input type="hidden" name="amount" value="<?php echo isset($discount) ? $discount : 0 ?>">
-                            </th>
-                            <th class="text-right py-1 px-2 grand-total">0</th>
-                        </tr>
-                    </tfoot>
                 </table>
                 <div class="row">
                     <div class="col-md-6">
@@ -203,8 +164,8 @@ if(isset($_GET['bo_id'])){
         </form>
     </div>
     <div class="card-footer py-1 text-center">
-        <button class="btn btn-flat btn-primary" type="submit" form="receive-form">Save</button>
-        <a class="btn btn-flat btn-dark" href="<?php echo base_url.'/admin/index.php?page=purchase_order' ?>">Cancel</a>
+        <button class="btn btn-flat btn-primary" type="submit" form="receive-form" href="<?php echo base_url.'/admin/index.php?page=receiving' ?>">Save</button>
+        <a class="btn btn-flat btn-dark" href="<?php echo base_url.'/admin/index.php?page=receiving' ?>">Cancel</a>
     </div>
 </div>
 <script>
@@ -252,50 +213,19 @@ if(isset($_GET['bo_id'])){
 		})
 
         if('<?php echo (isset($id) && $id > 0) || (isset($po_id) && $po_id > 0) ?>' == 1){
-            calc()
             $('#supplier_id').attr('readonly','readonly')
             $('table#list tbody tr .rem_row').click(function(){
                 rem($(this))
             })
                 console.log('test')
             $('[name="qty[]"],[name="discount_perc"],[name="tax_perc"]').on('input',function(){
-                calc()
             })
         }
     })
     function rem(_this){
         _this.closest('tr').remove()
-        calc()
         if($('table#list tbody tr').length <= 0)
             $('#supplier_id').removeAttr('readonly')
-
-    }
-    function calc(){
-        var sub_total = 0;
-        var grand_total = 0;
-        var discount = 0;
-        var tax = 0;
-        $('table#list tbody tr').each(function(){
-            qty = $(this).find('[name="qty[]"]').val()
-            price = $(this).find('[name="price[]"]').val()
-            total = parseFloat(price) * parseFloat(qty)
-            $(this).find('[name="total[]"]').val(total)
-            $(this).find('.total').text(parseFloat(total).toLocaleString('en-US',{style:'decimal',maximumFractionDigit:2}))
-        })
-        $('table#list tbody input[name="total[]"]').each(function(){
-            sub_total += parseFloat($(this).val())
-        })
-        $('table#list tfoot .sub-total').text(parseFloat(sub_total).toLocaleString('en-US',{style:'decimal',maximumFractionDigit:2}))
-        var discount =   sub_total * (parseFloat($('[name="discount_perc"]').val()) /100)
-        sub_total = sub_total - discount;
-        var tax =   sub_total * (parseFloat($('[name="tax_perc"]').val()) /100)
-        grand_total = sub_total + tax
-        $('.discount').text(parseFloat(discount).toLocaleString('en-US',{style:'decimal',maximumFractionDigit:2}))
-        $('[name="discount"]').val(parseFloat(discount))
-        $('.tax').text(parseFloat(tax).toLocaleString('en-US',{style:'decimal',maximumFractionDigit:2}))
-        $('[name="tax"]').val(parseFloat(tax))
-        $('table#list tfoot .grand-total').text(parseFloat(grand_total).toLocaleString('en-US',{style:'decimal',maximumFractionDigit:2}))
-        $('[name="amount"]').val(parseFloat(grand_total))
 
     }
 </script>

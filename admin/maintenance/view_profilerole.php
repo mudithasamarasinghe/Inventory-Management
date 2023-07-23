@@ -1,6 +1,6 @@
 <?php require_once('./../../config.php') ?>
 <?php 
- $qry = $conn->query("SELECT * FROM `role` where  id = '{$_GET['id']}' ");
+ $qry = $conn->query("SELECT * FROM ``profile_role`` where  id = '{$_GET['id']}' ");
  if($qry->num_rows > 0){
      foreach($qry->fetch_assoc() as $k => $v){
          $$k=$v;
@@ -19,13 +19,13 @@
                 <div class="col-12">
                     
                     <dl>
-                        <dt class="text-info">Role:</dt>
+                        <dt class="text-info">Profile Id.</dt>
                         <dd class="pl-3"><?php echo $name ?></dd>
-						<dt class="text-info">Page:</dt>
+						<dt class="text-info">Profile Name:</dt>
                         <dd class="pl-3"><?php echo $pagename ?></dd>
-						<dt class="text-info">Seq.:</dt>
+						<dt class="text-info">Role id.:</dt>
                         <dd class="pl-3"><?php echo $role_order ?></dd>
-						<dt class="text-info">Awesome font:</dt>
+						<dt class="text-info">Role name:</dt>
                         <dd class="pl-3"><?php echo $aweclass ?></dd>
                         <dt class="text-info">Status:</dt>
                         <dd class="pl-3">

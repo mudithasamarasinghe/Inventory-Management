@@ -1,5 +1,5 @@
 <?php 
-$qry = $conn->query("SELECT r.*,s.name as supplier FROM return_list r inner join suppliers s on r.supplier_id = s.id  where r.id = '{$_GET['id']}'");
+$qry = $conn->query("SELECT r.*,s.name as supplier FROM returns r inner join suppliers s on r.supplier_id = s.id  where r.id = '{$_GET['id']}'");
 if($qry->num_rows >0){
     foreach($qry->fetch_array() as $k => $v){
         $$k = $v;
@@ -45,7 +45,7 @@ if($qry->num_rows >0){
                 <tbody>
                     <?php 
                     $total = 0;
-                    $qry = $conn->query("SELECT s.*,i.name,i.description FROM `stock_list` s inner join items i on s.item_id = i.id where s.id in ({$stock_ids})");
+                    $qry = $conn->query("SELECT s.*,i.name,i.description FROM `stocks` s inner join items i on s.item_id = i.id where s.id in ({$stock_ids})");
                     while($row = $qry->fetch_assoc()):
                         $total += $row['total']
                     ?>
@@ -82,8 +82,8 @@ if($qry->num_rows >0){
     </div>
     <div class="card-footer py-1 text-center">
         <button class="btn btn-flat btn-success" type="button" id="print">Print</button>
-        <a class="btn btn-flat btn-primary" href="<?php echo base_url.'/admin/index.php?page=return/manage_return&id='.(isset($id) ? $id : '') ?>">Edit</a>
-        <a class="btn btn-flat btn-dark" href="<?php echo base_url.'/admin/index.php?page=return' ?>">Back To List</a>
+        <a class="btn btn-flat btn-primary" href="<?php echo base_url.'/admin?page=return/manage_return&id='.(isset($id) ? $id : '') ?>">Edit</a>
+        <a class="btn btn-flat btn-dark" href="<?php echo base_url.'/admin?page=return' ?>">Back To List</a>
     </div>
 </div>
 <table id="clone_list" class="d-none">

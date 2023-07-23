@@ -1,6 +1,6 @@
 <?php 
 if(isset($_GET['id'])){
-    $qry = $conn->query("SELECT r.*,s.name as supplier FROM return_list r inner join suppliers s on r.supplier_id = s.id  where r.id = '{$_GET['id']}'");
+    $qry = $conn->query("SELECT r.*,s.name as supplier FROM returns r inner join suppliers s on r.supplier_id = s.id  where r.id = '{$_GET['id']}'");
     if($qry->num_rows >0){
         foreach($qry->fetch_array() as $k => $v){
             $$k = $v;
@@ -28,6 +28,7 @@ if(isset($_GET['id'])){
     <div class="card-body">
         <form action="" id="return-form">
             <input type="hidden" name="id" value="<?php echo isset($id) ? $id : '' ?>">
+			<input type="hidden" name="stock_ids" value="<?php echo isset($stock_ids) ? $stock_ids : '' ?>">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-6">
@@ -62,6 +63,7 @@ if(isset($_GET['id'])){
                                     $cost_arr[$row['id']] = $row['cost'];
                                 endwhile;
                             ?>
+
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="item_id" class="control-label">Item</label>
@@ -112,7 +114,7 @@ if(isset($_GET['id'])){
                         <?php 
                         $total = 0;
                         if(isset($id)):
-                        $qry = $conn->query("SELECT s.*,i.name,i.description FROM `stock_list` s inner join item_list i on s.item_id = i.id where s.id in ({$stock_ids})");
+                        $qry = $conn->query("SELECT s.*,i.name,i.description FROM `stocks` s inner join items i on s.item_id = i.id where s.id in ({$stock_ids})");
                         while($row = $qry->fetch_assoc()):
                             $total += $row['total']
                         ?>

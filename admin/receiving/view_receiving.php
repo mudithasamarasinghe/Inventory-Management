@@ -66,19 +66,16 @@ if($qry->num_rows >0){
                         <th class="text-center py-1 px-2">Qty</th>
                         <th class="text-center py-1 px-2">Unit</th>
                         <th class="text-center py-1 px-2">Item</th>
-                        <th class="text-center py-1 px-2">Cost</th>
-                        <th class="text-center py-1 px-2">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    $total = 0;
+                    echo("SELECT s.*,i.name,i.description FROM `stock_list` s inner join items i on s.item_id = i.id where s.id in '{$stock_ids}'");
                     $qry = $conn->query("SELECT s.*,i.name,i.description FROM `stock_list` s inner join items i on s.item_id = i.id where s.id in '{$stock_ids}'");
 
 					//   $qry = $conn->query("SELECT b.*,s.name as supplier,p.po_code FROM back_order_list b inner join suppliers s on b.supplier_id = s.id inner join purchase_order_list p on b.po_id = p.id  where b.id = '{$form_id}'");
 
                     while($row = $qry->fetch_assoc()):
-                        $total += $row['total']
                     ?>
                     <tr>
                         <td class="py-1 px-2 text-center"><?php echo number_format($row['quantity'],2) ?></td>
@@ -87,32 +84,12 @@ if($qry->num_rows >0){
                             <?php echo $row['name'] ?> <br>
                             <?php echo $row['description'] ?>
                         </td>
-                        <td class="py-1 px-2 text-right"><?php echo number_format($row['price']) ?></td>
-                        <td class="py-1 px-2 text-right"><?php echo number_format($row['total']) ?></td>
                     </tr>
 
                     <?php endwhile; ?>
 
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <th class="text-right py-1 px-2" colspan="4">Sub Total</th>
-                        <th class="text-right py-1 px-2 sub-total"><?php echo number_format($total,2)  ?></th>
-                    </tr>
-                    <tr>
-                        <th class="text-right py-1 px-2" colspan="4">Discount <?php echo isset($discount_perc) ? $discount_perc : 0 ?>%</th>
-                        <th class="text-right py-1 px-2 discount"><?php echo isset($discount) ? number_format($discount,2) : 0 ?></th>
-                    </tr>
-                    <tr>
-                        <th class="text-right py-1 px-2" colspan="4">Tax <?php echo isset($tax_perc) ? $tax_perc : 0 ?>%</th>
-                        <th class="text-right py-1 px-2 tax"><?php echo isset($tax) ? number_format($tax,2) : 0 ?></th>
-                    </tr>
-                    <tr>
-                        <th class="text-right py-1 px-2" colspan="4">Total</th>
-                        <th class="text-right py-1 px-2 grand-total"><?php echo isset($amount) ? number_format($amount,2) : 0 ?></th>
-                    </tr>
-                </tfoot>
-            </table>
+                </table>
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -144,16 +121,10 @@ if($qry->num_rows >0){
             <input type="hidden" name="item_id[]">
             <input type="hidden" name="unit[]">
             <input type="hidden" name="qty[]">
-            <input type="hidden" name="price[]">
-            <input type="hidden" name="total[]">
         </td>
         <td class="py-1 px-2 text-center unit">
         </td>
         <td class="py-1 px-2 item">
-        </td>
-        <td class="py-1 px-2 text-right cost">
-        </td>
-        <td class="py-1 px-2 text-right total">
         </td>
     </tr>
 </table>
