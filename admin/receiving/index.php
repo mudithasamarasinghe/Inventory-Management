@@ -28,10 +28,10 @@
                     <tbody class="text-center">
                         <?php 
                         $i = 1;
-                        $qry = $conn->query("SELECT * FROM `receivings` order by `date_created` desc");
+                        $qry = $conn->query("SELECT id,date_created,from_order,form_id,IF(stock_ids, LENGTH(stock_ids) - LENGTH(REPLACE(stock_ids, ',', '')) + 1, 0) AS items  FROM `receivings` order by `date_created` desc");
                         while($row = $qry->fetch_assoc()):
                            // $row['items'] = explode(',',$row['stock_ids']);
-							$row['items'] = explode(',', $result['comp_uids'] ?? '');
+							//$row['items'] = explode(',', $result['comp_uids'] ?? '');
 							//  $row['items'] = count(explode(',',$row['stock_ids']));
                             if($row['from_order'] == 1){
                                 $code = $conn->query("SELECT po_code from `purchase_orders` where id='{$row['form_id']}' ")->fetch_assoc()['po_code'];
@@ -43,15 +43,14 @@
                                 <td class="text-center"><?php echo $i++; ?></td>
                                 <td><?php echo date("Y-m-d H:i",strtotime($row['date_created'])) ?></td>
                                 <td><?php echo $code ?></td>
-                                <td><?php echo number_format($row['items']) ?></td>
-                                <td><?php echo number_format(count($row['items'])) ?></td>
+                                <td><?php echo number_format($row['items']); ?></td>
                                 <td align="center">
                                     <button type="button" class="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
                                             Action
                                         <span class="sr-only">Toggle Dropdown</span>
                                     </button>
                                     <div class="dropdown-menu" role="menu">
-                                        <a class="dropdown-item" href="<?php echo base_url.'admin/index.php?page=receiving/view_receivingv&id='.$row['id'] ?>" data-id="<?php echo $row['id'] ?>"><span class="fa fa-eye text-dark"></span> View</a>
+                                        <a class="dropdown-item" href="<?php echo base_url.'admin/index.php?page=receiving/view_receiving&id='.$row['id'] ?>" data-id="<?php echo $row['id'] ?>"><span class="fa fa-eye text-dark"></span> View</a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" href="<?php echo base_url.'admin/index.php?page=receiving/manage_receiving&id='.$row['id'] ?>" data-id="<?php echo $row['id'] ?>"><span class="fa fa-edit text-primary"></span> Edit</a>
                                     </div>

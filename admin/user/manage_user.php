@@ -12,18 +12,12 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 	alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
 </script>
 <?php endif;?>
-<form action="upload.php" method="post" enctype="multipart/form-data">
-  Select image to upload:
-  <input type="file" name="fileToUpload" id="fileToUpload">
-  <input type="submit" value="Upload Image" name="submit">
-</form>
-
 <div class="card card-outline card-primary">
 	<div class="card-body">
 		<div class="container-fluid">
 			<div id="msg"></div>
 			<form action="" id="manage-user">	
-				<input type="text" name="id" value="<?php echo isset($_GET['id']) ? $_GET['id'] : '' ?>">
+				<input type="hidden" name="id" value="<?php echo isset($_GET['id']) ? $_GET['id'] : '' ?>">
 				<div class="form-group col-6">
 					<label for="name">First Name</label>
 					<input type="text" name="firstname" id="firstname" class="form-control" value="<?php echo isset($meta['firstname']) ? $meta['firstname']: '' ?>" required>
@@ -71,7 +65,9 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 				</div>
 			</form>
 		</div>
-	</div>
+	</div
+
+	
 	<div class="card-footer">
 			<div class="col-md-12">
 				<div class="row">
@@ -81,6 +77,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 			</div>
 		</div>
 </div>
+
 <style>
 	img#cimg{
 		height: 15vh;

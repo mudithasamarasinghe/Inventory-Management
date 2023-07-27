@@ -117,6 +117,13 @@ if(isset($_GET['bo_id'])){
                     </thead>
                     <tbody>
                         <?php
+						
+
+
+
+              
+						
+						
                         if(isset($po_id)):
                         if(!isset($bo_id))
                         $qry = $conn->query("SELECT p.*,i.name,i.description FROM `po_items` p inner join items i on p.item_id = i.id where p.po_id = '{$po_id}'");
@@ -124,21 +131,37 @@ if(isset($_GET['bo_id'])){
                         $qry = $conn->query("SELECT b.*,i.name,i.description FROM `bo_items` b inner join items i on b.item_id = i.id where b.bo_id = '{$bo_id}'");
                         while($row = $qry->fetch_assoc()):
                             $row['qty'] = $row['quantity'];
-                            if(isset($stock_ids)){
-                                // echo "SELECT * FROM `stock_list` where id in ($stock_ids) and item_id = '{$row['item_id']}'";
-                                $qty = $conn->query("SELECT * FROM `stock_list` where id in ($stock_ids) and item_id = '{$row['item_id']}'");
-                                $row['qty'] = $qty->num_rows > 0 ? $qty->fetch_assoc()['quantity'] : $row['qty'];
-                            }
+
+/////////////////////////////////////
+        $qry1 = $conn->query("SELECT stock_ids FROM `receivings` where form_id= '{$po_id}'");
+			$tqty = 0;
+        while($row1 = $qry1->fetch_assoc()):
+								
+               $qry2 = $conn->query("SELECT * FROM stock_list where id in (".$row1['stock_ids'].") and item_id = ".$row['item_id']);
+               while($row2 = $qry2->fetch_assoc()):                                             
+
+          $tqty = $tqty + $row2['quantity'];
+               endwhile;             
+		endwhile; 
+						///////////////////////////////
+                            //if(isset($stock_ids)){
+                            //    // echo "SELECT * FROM `stock_list` where id in ($stock_ids) and item_id = '{$row['item_id']}'";
+                             //   $qty = $conn->query("SELECT * FROM `stock_list` where id in ($stock_ids) and item_id = '{$row['item_id']}'");
+                            //    $row['qty'] = $qty->num_rows > 0 ? $qty->fetch_assoc()['quantity'] : $row['qty'];
+
+
+                           // }
                         ?>
                         <tr>
                             <td class="py-1 px-2 text-center">
                                 <button class="btn btn-outline-danger btn-sm rem_row" type="button"><i class="fa fa-times"></i></button>
                             </td>
                             <td class="py-1 px-2 text-center qty">
-                                <input type="number" name="qty[]" style="width:50px !important" value="<?php echo $row['qty']; ?>" max = "<?php echo $row['quantity']; ?>" min="0">
+                                <input type="number" name="qty[]" style="width:50px !important" value="<?php echo $row['quantity']-$tqty; ?>" max = "<?php echo $row['quantity']; ?>" min="0">
                                 <input type="hidden" name="item_id[]" value="<?php echo $row['item_id']; ?>">
                                 <input type="hidden" name="unit[]" value="<?php echo $row['unit']; ?>">
                                 <input type="hidden" name="oqty[]" value="<?php echo $row['quantity']; ?>">
+
                             </td>
                             <td class="py-1 px-2 text-center unit">
                             <?php echo $row['unit']; ?>

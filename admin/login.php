@@ -8,7 +8,7 @@
   </script>
   <style>
     body{
-      background-image: url("<?php echo validate_image($_settings->info('cover')) ?>");
+      background-image: url("https://www.regdesk.co/wp-content/uploads/2020/01/Changing-face-medical-device-design-1536x1536-300.jpg");
       background-size:cover;
       background-repeat:no-repeat;
     }
@@ -16,7 +16,7 @@
       text-shadow: 2px 2px black
     }
   </style>
-  <h1 class="text-center py-5 login-title"><b><?php echo $_settings->info('name') ?></b></h1>
+<!--  <h1 class="text-center py-5 login-title"><b>--><?php //echo $_settings->info('name') ?><!--</b></h1>-->
 <div class="login-box">
   <!-- /.login-logo -->
   <div class="card card-outline card-primary">

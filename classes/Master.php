@@ -320,6 +320,7 @@ Class Master extends DBConnection {
 				$data .=" `{$k}` = '{$v}' ";
 			}
 		}
+
 		if(empty($id)){
 			$sql = "INSERT INTO `receivings` set {$data}";
 		}else{
@@ -340,7 +341,7 @@ Class Master extends DBConnection {
 			$stock_ids= array();
 			foreach($item_id as $k =>$v){
 				if(!empty($data)) $data .=", ";
-				$sql = "INSERT INTO stock_list (`item_id`,`quantity`,`price`,`unit`,`total`,`type`) VALUES ('{$v}','{$qty[$k]}','{$price[$k]}','{$unit[$k]}','{$total[$k]}','1')";
+				$sql = "INSERT INTO stock_list (`item_id`,`quantity`,`unit`,`type`) VALUES ('{$v}','{$qty[$k]}','{$unit[$k]}','1')";
 				$this->conn->query($sql);
 				$stock_ids[] = $this->conn->insert_id;
 				if($qty[$k] < $oqty[$k]){
@@ -361,42 +362,33 @@ Class Master extends DBConnection {
 							bo_code = '{$bo_code}',	
 							receiving_id = '{$r_id}',	
 							po_id = '{$po_id}',	
-							supplier_id = '{$supplier_id}',	
-							discount_perc = '{$discount_perc}',	
-							tax_perc = '{$tax_perc}'
+							supplier_id = '{$supplier_id}'
 						";
 				}else{
 					$sql = "UPDATE `back_orders` set 
 							receiving_id = '{$r_id}',	
 							po_id = '{$form_id}',	
 							supplier_id = '{$supplier_id}',	
-							discount_perc = '{$discount_perc}',	
-							tax_perc = '{$tax_perc}',
 							where bo_id = '{$bo_id}'
 						";
 				}
 				$bo_save = $this->conn->query($sql);
 				if(!isset($bo_id))
 				$bo_id = $this->conn->insert_id;
-				$stotal =0; 
 				$data = "";
 				foreach($item_id as $k =>$v){
 					if(!in_array($k,$bo_ids))
 						continue;
-					$total = ($oqty[$k] - $qty[$k]) * $price[$k];
-					$stotal += $total;
+
 					if(!empty($data)) $data.= ", ";
-					$data .= " ('{$bo_id}','{$v}','".($oqty[$k] - $qty[$k])."','{$price[$k]}','{$unit[$k]}','{$total}') ";
+					$data .= " ('{$bo_id}','{$v}','".($oqty[$k] - $qty[$k])."','{$unit[$k]}') ";
 				}
 				$this->conn->query("DELETE FROM `bo_items` where bo_id='{$bo_id}'");
-				$save_bo_items = $this->conn->query("INSERT INTO `bo_items` (`bo_id`,`item_id`,`quantity`,`price`,`unit`,`total`) VALUES {$data}");
+				$save_bo_items = $this->conn->query("INSERT INTO `bo_items` (`bo_id`,`item_id`,`quantity`,`unit`) VALUES {$data}");
 				if($save_bo_items){
-					$discount = $stotal * ($discount_perc /100);
-					$stotal -= $discount;
-					$tax = $stotal * ($tax_perc /100);
-					$stotal += $tax;
-					$amount = $stotal;
-					$this->conn->query("UPDATE back_orders set amount = '{$amount}', discount='{$discount}', tax = '{$tax}' where id = '{$bo_id}'");
+
+					$amount = 0;
+					$this->conn->query("UPDATE back_orders set amount = '{$amount}' where id = '{$bo_id}'");
 				}
 
 			}else{
@@ -612,7 +604,7 @@ Class Master extends DBConnection {
 				}
 			}
 			foreach($item_id as $k =>$v){
-				$sql = "INSERT INTO `stock_list` set item_id='{$v}', `quantity` = '{$qty[$k]}', `unit` = '{$unit[$k]}', `price` = '{$price[$k]}', `total` = '{$total[$k]}', `type` = 2 ";
+				$sql = "INSERT INTO `stock_list` set item_id='{$v}', `quantity` = '{$qty[$k]}', `unit` = '{$unit[$k]}', `type` = 2 ";
 				$save = $this->conn->query($sql);
 				if($save){
 					$sids[] = $this->conn->insert_id;

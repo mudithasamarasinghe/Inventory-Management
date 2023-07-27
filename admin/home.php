@@ -41,7 +41,7 @@
 }
 </style>
 
-<h1 class="">Welcome to <?php echo $_settings->info('name') ?></h1>
+<h2 class="text-center">Welcome to <?php echo $_settings->info('name') ?></h2>
 <hr>
 
 
@@ -68,11 +68,22 @@ if ($row['db_name'] <> "notable") {
             <div class="info-box-content">
 			<button type="button" class="btn" onclick="window.location.href='<?php echo base_url ?><?php echo $row['pagename']?>'">
 			<span class="info-box-number text-center"><?php echo $row['name'] ?></span>
-<!--			   <span class="badge badge-pill badge-outline-primary ml-auto px-2 font-weight-bold align-middle">-->
-			   <?php
-			     $rnsql = "SELECT * FROM ".$row['db_name'];
-                 echo $conn->query($rnsql)->num_rows;
-				 echo "</span>";
+                <?php
+                if ($row['db_name'] == "reports") {
+                    echo "</span>";
+                }else{
+                    //stock_list record count
+                if ($row['db_name'] == "stock_list") {
+                    $rnsql = "SELECT * FROM ".$row['db_name']." group by item_id";
+                    echo $conn->query($rnsql)->num_rows;
+                    echo "</span>";
+                }else{
+                    $rnsql = "SELECT * FROM ".$row['db_name'];
+                    echo $conn->query($rnsql)->num_rows;
+                    echo "</span>";
+                }
+                    //end
+                }
 
                 ?>
             
