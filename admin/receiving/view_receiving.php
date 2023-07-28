@@ -138,7 +138,7 @@ if(isset($_GET['bo_id'])){
                                 <input type="number" name="qty[]" style="width:50px !important" value="<?php echo $row['qty']; ?>" max = "<?php echo $row['quantity']; ?>" min="0">
                                 <input type="hidden" name="item_id[]" value="<?php echo $row['item_id']; ?>">
                                 <input type="hidden" name="unit[]" value="<?php echo $row['unit']; ?>">
-                                <input type="hidden" name="oqty[]" value="<?php echo $row['quantity']; ?>">
+                                <input type="hidden" name="oqty[]" value="<?php echo $row['quantity']; ?>" readonly>
                             </td>
                             <td class="py-1 px-2 text-center unit">
                             <?php echo $row['unit']; ?>

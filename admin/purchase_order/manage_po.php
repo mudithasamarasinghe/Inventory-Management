@@ -37,12 +37,12 @@ if(isset($_GET['id'])){
                         if($qry->num_rows >0) {
                             $last_po_code = $qry->fetch_assoc()['po_code'];
 
-                                // Extract the numeric part from the last PO code and increment it
-                                $numeric_part = intval(substr($last_po_code, 3));
-                                $next_numeric_part = $numeric_part + 1;
+                            // Extract the numeric part from the last PO code and increment it
+                            $numeric_part = intval(substr($last_po_code, 3));
+                            $next_numeric_part = $numeric_part + 1;
 
-                                // Concatenate the prefix "PO-" with the incremented numeric part to get the next PO code
-                                $next_po_code = "PO-" . sprintf("%03d", $next_numeric_part);
+                            // Concatenate the prefix "PO-" with the incremented numeric part to get the next PO code
+                            $next_po_code = "PO-" . sprintf("%03d", $next_numeric_part);
 //                            }
                         } else {
                             $next_po_code = "PO-001";

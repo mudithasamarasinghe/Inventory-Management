@@ -50,7 +50,7 @@ if($qry->num_rows >0){
                             <?php echo $row['description'] ?>
                         </td>
                         <td class="py-1 px-2 text-center"><?php echo ($row['unit']) ?></td>
-                        <td class="py-1 px-2 text-center"><?php echo number_format($row['quantity'],2) ?></td>
+                        <td class="py-1 px-2 text-center"><?php echo $row['quantity'] ?></td>
                     </tr>
 
                     <?php endwhile; ?>

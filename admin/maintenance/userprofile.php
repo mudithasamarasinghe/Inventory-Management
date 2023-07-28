@@ -29,7 +29,8 @@
 				<tbody>
 					<?php 
 					$i = 1;
-						$qry = $conn->query("SELECT * from `admin_profiles`  where profile_id <> '1' order by `profile_name` asc ");
+					//	$qry = $conn->query("SELECT * from `admin_profiles`  where profile_id <> '1' order by `profile_name` asc ");
+                    $qry = $conn->query("SELECT * from `admin_profiles` order by `profile_name` asc ");
 						while($row = $qry->fetch_assoc()):
 					?>
 						<tr>
