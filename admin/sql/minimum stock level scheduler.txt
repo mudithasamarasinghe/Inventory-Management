@@ -1,0 +1,15 @@
+DROP EVENT IF EXISTS `minimum_level_check`;
+
+DELIMITER $$
+CREATE EVENT `minimum_level_check`
+	ON SCHEDULE EVERY 1 DAY
+	STARTS TIMESTAMP(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-%d 00:00:00'))
+	DO BEGIN
+		INSERT INTO messages (profileid, role_name, event_id, type, title, message, status) 
+		SELECT '2' as profileid, 'mlcheck' as role_name, id as event_id, '' as type, CONCAT('This is expired', ' ', item_id) AS title, CONCAT('This is expired', ' ', item_id) AS message, '1' as status
+		FROM stock_list
+		WHERE expiry_date BETWEEN CURRENT_TIMESTAMP AND DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 30 DAY);   
+	END
+$$
+
+DELIMITER ;

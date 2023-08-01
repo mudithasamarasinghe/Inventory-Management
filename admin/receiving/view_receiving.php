@@ -103,16 +103,16 @@ if(isset($_GET['bo_id'])){
                 <hr>
                 <table class="table table-striped table-bordered" id="list">
                     <colgroup>
-                        <col width="5%">
+                        <col width="35%">
                         <col width="10%">
                         <col width="10%">
                     </colgroup>
                     <thead>
                         <tr class="text-light bg-navy">
-                            <th class="text-center py-1 px-2"></th>
-                            <th class="text-center py-1 px-2">Qty</th>
+							<th class="text-center py-1 px-2">Item</th>
+							<th class="text-center py-1 px-2">Qty</th>
                             <th class="text-center py-1 px-2">Unit</th>
-                            <th class="text-center py-1 px-2">Item</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -131,21 +131,18 @@ if(isset($_GET['bo_id'])){
                             }
                         ?>
                         <tr>
-                            <td class="py-1 px-2 text-center">
-                                <button class="btn btn-outline-danger btn-sm rem_row" type="button"><i class="fa fa-times"></i></button>
-                            </td>
-                            <td class="py-1 px-2 text-center qty">
-                                <input type="number" name="qty[]" style="width:50px !important" value="<?php echo $row['qty']; ?>" max = "<?php echo $row['quantity']; ?>" min="0">
-                                <input type="hidden" name="item_id[]" value="<?php echo $row['item_id']; ?>">
-                                <input type="hidden" name="unit[]" value="<?php echo $row['unit']; ?>">
-                                <input type="hidden" name="oqty[]" value="<?php echo $row['quantity']; ?>" readonly>
-                            </td>
-                            <td class="py-1 px-2 text-center unit">
-                            <?php echo $row['unit']; ?>
-                            </td>
-                            <td class="py-1 px-2 item">
+							<td class="py-1 px-2 item">
                             <?php echo $row['name']; ?> <br>
                             <?php echo $row['description']; ?>
+                            </td>
+                            <td class="py-1 px-2 text-center qty">
+                                <input type="number" name="qty[]" style="width:50px !important" readonly value="<?php echo $row['qty']; ?>" max = "<?php echo $row['quantity']; ?>" min="0">
+                                <input type="hidden" name="item_id[]" value="<?php echo $row['item_id']; ?>">
+                                <input type="hidden" name="unit[]" value="<?php echo $row['unit']; ?>">
+                                <input type="hidden" name="oqty[]" value="<?php echo $row['quantity']; ?>">
+                            </td>
+							 <td class="py-1 px-2 text-center unit">
+                            <?php echo $row['unit']; ?>
                             </td>
                         </tr>
                         <?php endwhile; ?>
@@ -156,7 +153,7 @@ if(isset($_GET['bo_id'])){
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="remarks" class="text-info control-label">Remarks</label>
-                            <textarea name="remarks" id="remarks" rows="3" class="form-control rounded-0"><?php echo isset($remarks) ? $remarks : '' ?></textarea>
+                            <textarea name="remarks" id="remarks" rows="3" class="form-control rounded-0" readonly ><?php echo isset($remarks) ? $remarks : '' ?></textarea>
                         </div>
                     </div>
                 </div>
@@ -164,8 +161,8 @@ if(isset($_GET['bo_id'])){
         </form>
     </div>
     <div class="card-footer py-1 text-center">
-        <button class="btn btn-flat btn-primary" type="submit" form="receive-form">Save</button>
-        <a class="btn btn-flat btn-dark" href="<?php echo base_url.'/admin/index.php?page=purchase_order' ?>">Cancel</a>
+        <!--<button class="btn btn-flat btn-primary" type="submit" form="receive-form">Save</button>-->
+        <a class="btn btn-flat btn-dark" href="<?php echo base_url.'/admin/index.php?page=receiving' ?>">Cancel</a>
     </div>
 </div>
 <script>

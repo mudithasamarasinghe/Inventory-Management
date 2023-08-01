@@ -1,17 +1,31 @@
 <?php
+require_once('../config.php');
 if(isset($_GET['id'])){
-    $qry = $conn->query("SELECT d.*,i.name as item_name FROM items i inner join disposal d on d.item_id = i.id where d.disposal_id = '{$_GET['id']}'");
+    $qry = $conn->query("SELECT * FROM disposal where id = '{$_GET['id']}'");
     if($qry->num_rows >0){
         foreach($qry->fetch_array() as $k => $v){
             $$k = $v;
         }
     }
 }
-?>
 
+?>
+<style>
+    select[readonly].select2-hidden-accessible + .select2-container {
+        pointer-events: none;
+        touch-action: none;
+        background: #eee;
+        box-shadow: none;
+    }
+
+    select[readonly].select2-hidden-accessible + .select2-container .select2-selection {
+        background: #eee;
+        box-shadow: none;
+    }
+</style>
 <div class="card card-outline card-primary">
     <div class="card-header">
-        <h4 class="card-title"><?php echo isset($id) ? "Disposal Details - ".$disposal_id : 'Create New Disposal Request' ?></h4>
+        <h4 class="card-title"><?php echo isset($id) ? "Disposal Details - ".$disposal_code : 'Create New Disposal Record' ?></h4>
     </div>
     <div class="card-body">
         <form action="" id="disposal-form">
@@ -19,8 +33,8 @@ if(isset($_GET['id'])){
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-6">
-                        <label class="control-label text-info">Disposal Id</label>
-                        <input type="text" class="form-control form-control-sm rounded-0" value="<?php echo isset($disposal_id) ? $disposal_id : '' ?>" readonly>
+                        <label class="control-label text-info">Disposal Code</label>
+                        <input type="text" class="form-control form-control-sm rounded-0" value="<?php echo isset($disposal_code) ? $disposal_code : '' ?>" readonly>
                     </div>
                 </div>
                 <hr>
@@ -29,18 +43,20 @@ if(isset($_GET['id'])){
                     <div class="row justify-content-center align-items-end">
                         <?php
                         $item_arr = array();
+                        $unit_arr = array();
                         $item = $conn->query("SELECT * FROM `items` where status = 1 order by `name` asc");
                         while($row=$item->fetch_assoc()):
                             $item_arr[$row['id']] = $row;
-//                            $cost_arr[$row['id']] = $row['cost'];
+                            $unit_arr[$row['id']] = $row['unit'];
                         endwhile;
                         ?>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="item_id" class="control-label">Item</label>
-                                <select  id="item_id" class="custom-select ">
-                                    <?php foreach ($item_arr as $item_id => $item) : ?>
-                                        <option value="<?php echo $item_id; ?>"><?php echo $item['name']; ?></option>
+                                <select  id="item_id" class="custom-select select2">
+                                    <option disabled selected></option>
+                                    <?php foreach($item_arr as $k =>$v): ?>
+                                        <option value="<?php echo $k ?>"> <?php echo $v['name'] ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -48,7 +64,7 @@ if(isset($_GET['id'])){
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="unit" class="control-label">Unit</label>
-                                <input type="text" class="form-control rounded-0" id="unit">
+                                <input type="text" class="form-control rounded-0" id="unit" value="">
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -66,16 +82,13 @@ if(isset($_GET['id'])){
                 <hr>
                 <table class="table table-striped table-bordered" id="list">
                     <colgroup>
-                        <col width="10%">
-                        <col width="30%">
-                        <col width="30%">
-                        <col width="30%">
+                        <col width="15%">
+                        <col width="25%">
+                        <col width="25%">
                     </colgroup>
                     <thead>
                     <tr class="text-light bg-navy">
                         <th class="text-center py-1 px-2"></th>
-                        <th class="text-center py-1 px-2">Disposal Code</th>
-                        <th class="text-center py-1 px-2">Disposal Code</th>
                         <th class="text-center py-1 px-2">Item</th>
                         <th class="text-center py-1 px-2">Unit</th>
                         <th class="text-center py-1 px-2">Qty</th>
@@ -83,29 +96,26 @@ if(isset($_GET['id'])){
                     </thead>
                     <tbody>
                     <?php
-//                    $total = 0;
                     if(isset($id)):
-                        $qry = $conn->query("SELECT d.*,i.name,i.description FROM `po_items` p inner join items i on p.item_id = i.id where p.po_id = '{$id}'");
+                        $qry = $conn->query("SELECT s.*,i.name,i.description FROM `stock_list` s inner join items i on s.item_id = i.id where s.id in ({$stock_ids})");
                         while($row = $qry->fetch_assoc()):
-                            $total += $row['total']
                             ?>
                             <tr>
                                 <td class="py-1 px-2 text-center">
                                     <button class="btn btn-outline-danger btn-sm rem_row" type="button"><i class="fa fa-times"></i></button>
                                 </td>
-                                <td class="py-1 px-2 text-center qty">
-                                    <span class="visible"><?php echo number_format($row['quantity']); ?></span>
-                                    <input type="hidden" name="disposal_code[]" value="<?php echo $row['disposal_code']; ?>">
-                                    <input type="hidden" name="item_id[]" value="<?php echo $row['item_id']; ?>">
-                                    <input type="hidden" name="unit[]" value="<?php echo $row['unit']; ?>">
-                                    <input type="hidden" name="qty[]" value="<?php echo $row['quantity']; ?>">
+                                <td class="py-1 px-2 item">
+                                    <?php echo $row['name']; ?> <br>
+                                    <?php echo $row['description']; ?>
                                 </td>
                                 <td class="py-1 px-2 text-center unit">
                                     <?php echo $row['unit']; ?>
                                 </td>
-                                <td class="py-1 px-2 item">
-                                    <?php echo $row['name']; ?> <br>
-                                    <?php echo $row['description']; ?>
+                                <td class="py-1 px-2 text-center qty">
+                                    <span class="visible"><?php echo number_format($row['quantity']); ?></span>
+                                    <input type="hidden" name="item_id[]" value="<?php echo $row['item_id']; ?>">
+                                    <input type="hidden" name="unit[]" value="<?php echo $row['unit']; ?>">
+                                    <input type="hidden" name="qty[]" value="<?php echo $row['quantity']; ?>">
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -147,20 +157,25 @@ if(isset($_GET['id'])){
 </table>
 <script>
     var items = $.parseJSON('<?php echo json_encode($item_arr) ?>')
+    var units = $.parseJSON('<?php echo json_encode($unit_arr) ?>')
 
     $(function(){
-        $('#item_id').select2({
-            placeholder:"Please select item first",
+        $('.select2').select2({
+            placeholder:"Please select here",
             width:'resolve',
         })
-
+        $('#item_id').change(function(){
+            var item = $('#item_id').val()
+            var tunit = units[item];
+            $('#unit').val(tunit);
+        })
         $('#add_to_list').click(function(){
-            var item = $('#item_id').val();
-            // alert(JSON.stringify(items));
+            var item = $('#item_id').val()
             var qty = $('#qty').val() > 0 ? $('#qty').val() : 0;
             var unit = $('#unit').val()
-            var item_name = items[item].name || 'N/A';
-            var item_description = items[item].description || 'N/A';
+            var item_id = $('#item_id').val()
+            var item_name = items[item].name;
+            var item_description = items[item].description;
             var tr = $('#clone_list tr').clone()
             if(item == '' || qty == '' || unit == '' ){
                 alert_toast('Form Item textfields are required.','warning');
@@ -178,13 +193,13 @@ if(isset($_GET['id'])){
             tr.find('.unit').text(unit)
             tr.find('.item').html(item_name+'<br/>'+item_description)
             $('table#list tbody').append(tr)
-            // calc()
             $('#item_id').val('').trigger('change')
             $('#qty').val('')
             $('#unit').val('')
             tr.find('.rem_row').click(function(){
                 rem($(this))
             })
+            // $('#client').attr('readonly','readonly')
         })
         $('#disposal-form').submit(function(e){
             e.preventDefault();
@@ -202,7 +217,7 @@ if(isset($_GET['id'])){
                 dataType: 'json',
                 error:err=>{
                     console.log(err)
-                    alert_toast("An error occured",'error');
+                    alert_toast("An error occured2",'error');
                     end_loader();
                 },
                 success:function(resp){
@@ -215,7 +230,7 @@ if(isset($_GET['id'])){
                         el.show('slow')
                         end_loader()
                     }else{
-                        alert_toast("An error occured",'error');
+                        alert_toast("An error occured1",'error');
                         end_loader();
                         console.log(resp)
                     }
@@ -224,14 +239,18 @@ if(isset($_GET['id'])){
             })
         })
 
+        if('<?php echo isset($id) && $id > 0 ?>' == 1){
+            // $('#client').trigger('change')
+            // $('#client').attr('readonly','readonly')
             $('table#list tbody tr .rem_row').click(function(){
                 rem($(this))
             })
+        }
     })
     function rem(_this){
         _this.closest('tr').remove()
         if($('table#list tbody tr').length <= 0)
-            $('#item_id').removeAttr('readonly')
+            $('#item').removeAttr('readonly')
 
     }
 </script>

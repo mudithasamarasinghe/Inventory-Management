@@ -230,25 +230,25 @@ right: 14px;
 		 while($row0 = $qry0->fetch_assoc()):
        $profileid = $row0['type'];
 	   endwhile;
-     }
+     }	
 	 ?>
 		<div class="btn-group new_messages">
 						<a href="" class="btn btn-default dropdown-toggle tp-icon" data-toggle="dropdown" style="background-color: #3c8dbc !important;" aria-expanded="false">
 							<i class="fa fa-envelope fa-lg"></i>
-							<span class="badge"><?php echo $conn->query("SELECT * FROM messages a WHERE msg_id = (SELECT MAX(msg_id) FROM messages WHERE a.event_id = event_id) and a.status = '1' and a.profileid='". $profileid."'")->num_rows; ?></span>
+							<span class="badge"><?php echo $conn->query("SELECT * FROM messages a WHERE msg_id = (SELECT MAX(msg_id) FROM messages WHERE a.event_id = event_id and a.role_name=role_name) and a.status = '0' and a.profileid='". $profileid."'")->num_rows; ?></span>
 						</a>
 
 						<div class="dropdown-menu dropdown-menu-head pull-right">
-							<h5 class="title"> You Have <?php echo $conn->query("SELECT * FROM messages a WHERE msg_id = (SELECT MAX(msg_id) FROM messages WHERE a.event_id = event_id) and a.status = '1' and a.profileid='". $profileid."'")->num_rows; ?> New Message(s)</h5>
+							<h5 class="title"> You Have <?php echo $conn->query("SELECT * FROM messages a WHERE msg_id = (SELECT MAX(msg_id) FROM messages WHERE a.event_id = event_id and a.role_name=role_name) and a.status = '0' and a.profileid='". $profileid."'")->num_rows; ?> New Message(s)</h5>
 							<ul class="dropdown-list gen-list">
 							<?php
-                          	$qry = $conn->query("SELECT * FROM messages a WHERE msg_id = (SELECT MAX(msg_id) FROM messages WHERE a.event_id = event_id) and a.status = '1' and a.profileid='". $profileid."'");
+							$qry = $conn->query("SELECT * FROM messages a WHERE msg_id = (SELECT MAX(msg_id) FROM messages WHERE a.event_id = event_id and a.role_name=role_name) and a.status = '0' and a.profileid='". $profileid."'");
 					$cou = 0;
 					while($row = $qry->fetch_assoc()):	?>
 							
 							<li class="new">
-							<a href="messagehome.php?id=<?php echo $row['msg_id']; ?>" class="nav-link nav-home"><?php echo $row['title']; ?></a>
-							<a class="message-success" href="messagehome.php?id=<?php echo $row['msg_id']; ?>" data-toggle="modal" data-target="#message_modal">
+							<a href="messagehome.php?id=<?php echo $row['msg_id']; ?>&rle=<?php echo $row['role_name']; ?>" class="nav-link nav-home"><?php echo $row['title']; ?></a>
+							<a class="message-success" href="messagehome.php?id=<?php echo $row['msg_id']; ?>&rle=<?php echo $row['role_name']; ?>" data-toggle="modal" data-target="#message_modal">
 							<span class="badge badge-success">new</span>
 							</li>
 												<?php endwhile; ?>

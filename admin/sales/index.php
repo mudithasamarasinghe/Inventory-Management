@@ -16,7 +16,6 @@
                         <col width="20%">
                         <col width="10%">
                         <col width="10%">
-                        <col width="10%">
                     </colgroup>
                     <thead>
                         <tr>
@@ -25,7 +24,7 @@
                             <th>Sale Code</th>
                             <th>Client</th>
                             <th>Items</th>
-                            <th>Amount</th>
+<!--                            <th>Quantity</th>-->
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -42,7 +41,7 @@
                                 <td><?php echo $row['sales_code'] ?></td>
                                 <td><?php echo $row['client'] ?></td>
                                 <td class="text-right"><?php echo number_format($row['items']) ?></td>
-                                <td class="text-right"><?php echo number_format($row['amount'],2) ?></td>
+<!--                                <td class="text-right">--><?php //echo number_format($row['quantity'],2) ?><!--</td>-->
                                 <td align="center">
                                     <button type="button" class="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
                                             Action

@@ -1,3 +1,4 @@
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 <?php
 require_once('../../config.php');
 if(isset($_GET['id']) && $_GET['id'] > 0){
@@ -37,7 +38,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
         </div>
         <div class="form-group">
             <label for="email" class="control-label">Email</label>
-            <input type="email" name="email" id="email" class="form-control rounded-0" value="<?php echo isset($email) ? $email :"" ?>" required>
+             <input type="email" name="email" id="email" class="form-control rounded-0" value="<?php echo isset($email) ? $email :"" ?>" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
         </div>
         <div class="form-group">
             <label for="contact" class="control-label">Contact</label>

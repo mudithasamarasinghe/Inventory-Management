@@ -1,5 +1,10 @@
 <?php
 require_once('../config.php');
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+require_once "../../vendor/autoload.php"; //PHPMailer Object  "F:\xampp\phpMyAdmin\vendor\autoload.php"
+
 Class Master extends DBConnection {
     private $settings;
 
@@ -310,6 +315,7 @@ Class Master extends DBConnection {
 
             }
         }
+
         extract($_POST);
         $data = "";
         foreach($_POST as $k =>$v){
@@ -326,6 +332,7 @@ Class Master extends DBConnection {
         }else{
             $sql = "UPDATE `receivings` set {$data} where id = '{$id}'";
         }
+
         $save = $this->conn->query($sql);
         if($save){
             $resp['status'] = 'success';
@@ -341,7 +348,7 @@ Class Master extends DBConnection {
             $stock_ids= array();
             foreach($item_id as $k =>$v){
                 if(!empty($data)) $data .=", ";
-                $sql = "INSERT INTO stock_list (`item_id`,`quantity`,`unit`,`type`) VALUES ('{$v}','{$qty[$k]}','{$unit[$k]}','1')";
+                $sql = "INSERT INTO stock_list (`item_id`,`quantity`,`expiry_date`,`unit`,`type`) VALUES ('{$v}','{$qty[$k]}','{$expiry_date[$k]}','{$unit[$k]}','1')";
                 $this->conn->query($sql);
                 $stock_ids[] = $this->conn->insert_id;
                 if($qty[$k] < $oqty[$k]){
@@ -385,11 +392,11 @@ Class Master extends DBConnection {
                 }
                 $this->conn->query("DELETE FROM `bo_items` where bo_id='{$bo_id}'");
                 $save_bo_items = $this->conn->query("INSERT INTO `bo_items` (`bo_id`,`item_id`,`quantity`,`unit`) VALUES {$data}");
-                if($save_bo_items){
-
-                    $amount = 0;
-                    $this->conn->query("UPDATE back_orders set amount = '{$amount}' where id = '{$bo_id}'");
-                }
+//                if($save_bo_items){
+//
+//                    $amount = 0;
+//                    $this->conn->query("UPDATE back_orders set amount = '{$amount}' where id = '{$bo_id}'");
+//                }
 
             }else{
                 $this->conn->query("UPDATE `purchase_orders` set status = 2 where id = '{$po_id}'");
@@ -401,16 +408,83 @@ Class Master extends DBConnection {
             $resp['status'] = 'failed';
             $resp['msg'] = 'An error occured. Error: '.$this->conn->error;
         }
-        if($resp['status'] == 'success'){
-            if(empty($id)){
-                $this->settings->set_flashdata('success'," New Stock was Successfully received.");
-            }else{
-                $this->settings->set_flashdata('success'," Received Stock's Details Successfully updated.");
+
+
+
+        /////////////////////////////////////
+
+
+        if(isset($po_id)):
+            if(!isset($bo_id))
+                $qry = $this->conn->query("SELECT p.*,i.name,i.description FROM `po_items` p inner join items i on p.item_id = i.id where p.po_id = '{$po_id}'");
+            else
+                $qry = $this->conn->query("SELECT b.*,i.name,i.description FROM `bo_items` b inner join items i on b.item_id = i.id where b.bo_id = '{$bo_id}'");
+            while($row = $qry->fetch_assoc()):
+                $row['qty'] = $row['quantity'];
+
+
+                $qry1 = $this->conn->query("SELECT stock_ids FROM `receivings` where form_id= '{$po_id}'");
+                $tqty = 0;
+                while($row1 = $qry1->fetch_assoc()):
+
+                    $qry2 = $this->conn->query("SELECT * FROM stock_list where id in (".$row1['stock_ids'].") and item_id = ".$row['item_id']);
+                    while($row2 = $qry2->fetch_assoc()):
+
+                        $tqty = $tqty + $row2['quantity'];
+                    endwhile;
+                endwhile;
+
+                if ($row['quantity']== $tqty){
+                    //echo "UPDATE `purchase_orders` set status = 2 where id = '{$po_id}'";
+//                  //  exit();
+                    $this->conn->query("UPDATE `purchase_orders` set status = 2 where id = '{$po_id}'");
+                }
+
+            endwhile;
+        endif;
+
+
+        ///////////////////////////////////////////
+
+        if ($resp['status'] == 'success') {
+            if (empty($id)) {
+                $this->settings->set_flashdata('success', "New Stock was Successfully received.");
+            } else {
+                $this->settings->set_flashdata('success', "Received Stock's Details Successfully updated.");
+            }
+
+            // Check and update PO status
+            if (isset($po_id)) {
+                $qry = $this->conn->query("SELECT p.*, i.name, i.description FROM `po_items` p INNER JOIN items i ON p.item_id = i.id WHERE p.po_id = '{$po_id}'");
+                $po_fully_received = true; // Assume all items in the PO are fully received
+
+                while ($row = $qry->fetch_assoc()) {
+                    $qry1 = $this->conn->query("SELECT stock_ids FROM `receivings` WHERE form_id = '{$po_id}'");
+                    $total_ordered_qty = $row['quantity'];
+                    $total_received_qty = 0;
+
+                    while ($row1 = $qry1->fetch_assoc()) {
+                        $qry2 = $this->conn->query("SELECT * FROM stock_list WHERE id IN (" . $row1['stock_ids'] . ") AND item_id = " . $row['item_id']);
+
+                        while ($row2 = $qry2->fetch_assoc()) {
+                            $total_received_qty += $row2['quantity'];
+                        }
+                    }
+
+                    if ($total_received_qty < $total_ordered_qty) {
+                        $po_fully_received = false; // At least one item is not fully received
+                        break;
+                    }
+                }
+
+                // Update the PO status based on whether all items are fully received or not
+                $po_status = $po_fully_received ? 2 : 1;
+                $this->conn->query("UPDATE `purchase_orders` SET status = '{$po_status}' WHERE id = '{$po_id}'");
             }
         }
-
         return json_encode($resp);
     }
+
     function delete_receiving(){
         extract($_POST);
         $qry = $this->conn->query("SELECT * from  receivings where id='{$id}' ");
@@ -470,6 +544,7 @@ Class Master extends DBConnection {
     }
     //////////////
     function save_return(){
+
         if(empty($_POST['id'])){
             $prefix = "R";
             $code = sprintf("%'.04d",1);
@@ -524,7 +599,7 @@ Class Master extends DBConnection {
                 if(!empty($res['stock_ids'])){
 
                     $sqlt = base64_encode("DELETE FROM `stock_list` where id in ({$res['stock_ids']}) ");
-                    $sql = "INSERT INTO `messages` set profileid='{$pid}', `title` = 'Approval for return return id - ''{$return_id}', `message` = '".$sqlt."',`type` = 'insert',`status` = '1', `role_name` = 'returns', `event_id` = '{$return_id}'";
+                    $sql = "INSERT INTO `messages` set profileid='{$pid}', `title` = 'Approval for return return id - ''{$return_id}', `message` = '".$sqlt."',`type` = 'insert',`status` = '0', `role_name` = 'returns', `event_id` = '{$return_id}'";
                     $save = $this->conn->query($sql);
                     /////////////
                     //$this->conn->query("DELETE FROM `stock_list` where id in ({$res['stock_ids']}) ");
@@ -534,7 +609,7 @@ Class Master extends DBConnection {
 
                 /////////////
                 $sqlt = base64_encode("INSERT INTO `stock_list` set item_id='{$v}', `quantity` = '{$qty[$k]}', `unit` = '{$unit[$k]}',`type` = 2 ");
-                $sql = "INSERT INTO `messages` set profileid='".$pid."', `title` = 'Approval for return return id - ''{$return_id}', `message` = '".$sqlt."',`type` = 'delete',`status` = '1', `role_name` = 'returns', `event_id` = '{$return_id}'";
+                $sql = "INSERT INTO `messages` set profileid='".$pid."', `title` = 'Approval for return return id - ''{$return_id}', `message` = '".$sqlt."',`type` = 'delete',`status` = '0', `role_name` = 'returns', `event_id` = '{$return_id}'";
                 $save = $this->conn->query($sql);
                 /////////////
                 //$sql = "INSERT INTO `stock_list` set item_id='{$v}', `quantity` = '{$qty[$k]}', `unit` = '{$unit[$k]}',`type` = 2 ";
@@ -555,49 +630,80 @@ Class Master extends DBConnection {
             }else{
                 $this->settings->set_flashdata('success'," Returned Item Record's Successfully updated.");
             }
+
+            ////////////////////////////////////////////////////
+
+            $mail = new PHPMailer(true);
+//C:\xampp\htdocs
+            try {
+                //Server settings
+                $mail->SMTPDebug = 0;                     //Enable verbose debug output
+                $mail->isSMTP();                                            //Send using SMTP
+                $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
+                $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+                $mail->Username   = 'mudithasamarasinghe08@gmail.com';                     //SMTP username
+                $mail->Password   = 'dscklkgchdvejrqr';                               //SMTP password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+                $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+                //Recipients
+                $mail->setFrom('mudithasamarasinghe08@gmail.com', 'MEDIX');
+                $mail->addAddress('mudithasamarasinghe08@gmail.com');     //Add a recipient
+
+                //Content
+                $mail->isHTML(true);                                  //Set email format to HTML
+                $mail->Subject = 'Medix Purchase Return Notification';
+                $mail->Body    = 'Hello,<br><br>
+        This is a system generated notification. Do not reply to this mail.<br> You have a pending approval for return id <b>$return_id</b>.<br><br>
+        
+        Please evaluate the return request. <br>
+        <br><b>Regards,</b><br>Medix ';
+
+                $mail->send();
+
+            } catch (Exception $e) {
+                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            }
+
+            //////////////////////////////////////////////////
         }
 
         return json_encode($resp);
     }
     //
 function approve_return(){
-/*
-extract($_POST);
 
-$get = $this->conn->query("SELECT * FROM `messages` where event_id = '{$id}'");
-if($get->num_rows > 0){
+    extract($_POST);
 
-    while($row = $get->fetch_assoc()):
-    if (row['type']=="delete" ) {
-        $del = $this->conn->query('". base64_encode(row['message'])."');
+    $get = $this->conn->query("SELECT * FROM `messages` where event_id = '{$id}'");
+    if($get->num_rows > 0){
+
+        while($row = $get->fetch_assoc()):
+            if ($row['type']=="delete" ) {
+                $del = $this->conn->query("\"".base64_decode($row['message'])."\"");
+                $resp['status'] = 'success';
+            }  else {
+                $sql = "\"".base64_decode($row['message'])."\"";
+                $save = $this->conn->query($sql);
+                $resp['status'] = 'success';
+            }
+            $this->conn->query("UPDATE `messages` set status = '1' where event_id = '{$id}'");
+        endwhile;
+        $this->conn->query("UPDATE `return_list` set return_approval = '{$_SESSION['userdata']['id']}' ,date_approval = now() where id = '{$id}'");
+        $resp['status'] = 'success';
+    } else {
+        $resp['status'] = 'failed';
     }
-    if($del){
-    $resp['status'] = 'success';
-    $this->settings->set_flashdata('success',"Returned Item Record's Successfully deleted.");
-
-}else{
-    $resp['status'] = 'failed';
-    $resp['error'] = $this->conn->error;
-}
-    endwhile;
-    $resp['status'] = 'success';
-}
-$del = $this->conn->query("DELETE FROM `return_list` where id = '{$id}'");
-
-if($del){
-    $resp['status'] = 'success';
-    $this->settings->set_flashdata('success',"Returned Item Record's Successfully deleted.");
-    if(isset($res)){
-        $this->conn->query("DELETE FROM `stock_list` where id in ({$res['stock_ids']})");
+    if($resp['status'] == 'success'){
+        if(empty($id)){
+            $this->settings->set_flashdata('success'," New Returned Item Record was Successfully approved.");
+        }else{
+            $this->settings->set_flashdata('failed'," Returned Item Record was not approved.");
+        }
     }
-}else{
-    $resp['status'] = 'failed';
-    $resp['error'] = $this->conn->error;
-}
+    return json_encode($resp);
 
-        return json_encode($resp);
-*/
-    }
+}
     //
     function delete_return(){
         extract($_POST);
@@ -674,26 +780,24 @@ if($del){
             $ij = 0;
             /////////////
             foreach($item_id as $k =>$v){
-                $sql = "INSERT INTO `stock_list` set item_id='{$v}', `quantity` = '{$qty[$k]}', `unit` = '{$unit[$k]}', `price` = '{$price[$k]}', `total` = '{$total[$k]}', `type` = 2 ";
-
+                $sql = "INSERT INTO `stock_list` set item_id='{$v}', `quantity` = '{$qty[$k]}', `unit` = '{$unit[$k]}', `type` = 2 ";
                 if ($ij == 0 ) {
                     $sql = "INSERT INTO `messages` set profileid='{$pid}', `title` = 'Approval for return', `message` = 'Approval for return',`status` = '1'";
                     $save = $this->conn->query($sql);
                     if($save){
-                        $sids[] = $this->conn->insert_id;
+                        $sids = $this->conn->insert_id;
                     }
-                    $sids = implode(',',$sids);
+//                    $sids = implode(',',$sids);
                     $ij=1;
                 }
 
-                /*
                 $save = $this->conn->query($sql);
                 if($save){
-                    $sids[] = $this->conn->insert_id;
+                    $sids = $this->conn->insert_id;
                 }
-                */
+
             }
-            $sids = implode(',',$sids);
+//            $sids = implode(',',$sids);
             $this->conn->query("UPDATE `sales_list` set stock_ids = '{$sids}' where id = '{$sale_id}'");
         }else{
             $resp['status'] = 'failed';
@@ -905,19 +1009,67 @@ if($del){
         return json_encode($resp);
 
     }
+    function expiry_return(){
+
+        extract($_POST);
+
+        $get = $this->conn->query("SELECT * FROM `messages` where event_id = '{$id}'");
+        if($get->num_rows > 0){
+
+            while($row = $get->fetch_assoc()):
+                $this->conn->query("UPDATE `messages` set status = '1' where event_id = '{$id}'");
+            endwhile;
+            $resp['status'] = 'success';
+        } else {
+            $resp['status'] = 'failed';
+        }
+        if($resp['status'] == 'success'){
+            if(empty($id)){
+                $this->settings->set_flashdata('success'," New Returned Item Record was Successfully approved.");
+            }else{
+                $this->settings->set_flashdata('failed'," Returned Item Record was not approved.");
+            }
+        }
+        return json_encode($resp);
+
+    }
+    function mlcheck_return(){
+
+        extract($_POST);
+
+        $get = $this->conn->query("SELECT * FROM `messages` where event_id = '{$id}'");
+        if($get->num_rows > 0){
+
+            while($row = $get->fetch_assoc()):
+                $this->conn->query("UPDATE `messages` set status = '0' where event_id = '{$id}'");
+            endwhile;
+            $resp['status'] = 'success';
+        } else {
+            $resp['status'] = 'failed';
+        }
+        if($resp['status'] == 'success'){
+            if(empty($id)){
+                $this->settings->set_flashdata('success'," New Returned Item Record was Successfully approved.");
+            }else{
+                $this->settings->set_flashdata('failed'," Returned Item Record was not approved.");
+            }
+        }
+        return json_encode($resp);
+
+    }
     function save_disposal(){
         if(empty($_POST['id'])){
             $prefix = "D";
             $code = sprintf("%'.04d",1);
             while(true){
-                $check_code = $this->conn->query("SELECT * FROM `disposal` where disposal_id ='".$prefix.'-'.$code."' ")->num_rows;
+                $check_code = $this->conn->query("SELECT * FROM `disposal` where disposal_code ='".$prefix.'-'.$code."' ")->num_rows;
                 if($check_code > 0){
                     $code = sprintf("%'.04d",$code+1);
                 }else{
                     break;
                 }
             }
-            $_POST['disposal_id'] = $prefix."-".$code;
+            $_POST['disposal_code'] = $prefix."-".$code;
         }
         extract($_POST);
         $data = "";
@@ -929,46 +1081,67 @@ if($del){
                 $data .=" `{$k}` = '{$v}' ";
             }
         }
+
+        ////////////get alert manager's profile ids
+        $qry = $this->conn->query("SELECT pa.profileid FROM `alert` a inner join profile_alert pa on a.id=pa.alertid where approval_for = 'disposals'");
+        if($qry->num_rows > 0){
+            $res = $qry->fetch_array();
+            $pid = $res['profileid'];
+        }
+        /////////////
+
         if(empty($id)){
             $sql = "INSERT INTO `disposal` set {$data}";
         }else{
             $sql = "UPDATE `disposal` set {$data} where id = '{$id}'";
         }
         $save = $this->conn->query($sql);
+
         if($save){
             $resp['status'] = 'success';
             if(empty($id))
-                $return_id = $this->conn->insert_id;
+                $disposal_id = $this->conn->insert_id;
             else
-                $return_id = $id;
-            $resp['id'] = $return_id;
+                $disposal_id = $id;
+            $resp['id'] = $disposal_id;
             $data = "";
             $sids = array();
             $get = $this->conn->query("SELECT * FROM `disposal` where id = '{$disposal_id}'");
             if($get->num_rows > 0){
                 $res = $get->fetch_array();
                 if(!empty($res['stock_ids'])){
-                    $this->conn->query("DELETE FROM `stock_list` where id in ({$res['stock_ids']}) ");
+
+                    $sqlt = base64_encode("DELETE FROM `disposal` where id in ({$res['stock_ids']}) ");
+                    $sql = "INSERT INTO `messages` set profileid='{$pid}', `title` = 'Approval for disposals id - ''{$disposal_id}', `message` = '".$sqlt."',`type` = 'insert',`status` = '0', `role_name` = 'disposals', `event_id` = '{$disposal_id}'";
+                    $save = $this->conn->query($sql);
+                    /////////////
+                    //$this->conn->query("DELETE FROM `stock_list` where id in ({$res['stock_ids']}) ");
                 }
             }
             foreach($item_id as $k =>$v){
-                $sql = "INSERT INTO `stock_list` set item_id='{$v}', `quantity` = '{$qty[$k]}', `unit` = '{$unit[$k]}', `price` = '{$price[$k]}', `total` = '{$total[$k]}', `type` = 2 ";
+
+                /////////////
+                $sqlt = base64_encode("INSERT INTO `stock_list` set item_id='{$v}', `quantity` = '{$qty[$k]}', `unit` = '{$unit[$k]}',`type` = 2 ");
+                $sql = "INSERT INTO `messages` set profileid='".$pid."', `title` = 'Approval for disposal disposal id - ''{$disposal_id}', `message` = '".$sqlt."',`type` = 'delete',`status` = '0', `role_name` = 'disposals', `event_id` = '{$disposal_id}'";
                 $save = $this->conn->query($sql);
+                /////////////
+                //$sql = "INSERT INTO `stock_list` set item_id='{$v}', `quantity` = '{$qty[$k]}', `unit` = '{$unit[$k]}',`type` = 2 ";
+                //$save = $this->conn->query($sql);
                 if($save){
                     $sids[] = $this->conn->insert_id;
                 }
             }
             $sids = implode(',',$sids);
-            $this->conn->query("UPDATE `disposal` set stock_ids = '{$sids}' where id = '{$disposal_id}'");
+            $this->conn->query("UPDATE `disposal_list` set stock_ids = '{$sids}' where id = '{$disposal_id}'");
         }else{
             $resp['status'] = 'failed';
             $resp['msg'] = 'An error occured. Error: '.$this->conn->error;
         }
         if($resp['status'] == 'success'){
             if(empty($id)){
-                $this->settings->set_flashdata('success'," New Disposal Record was Successfully created.");
+                $this->settings->set_flashdata('success'," New Disposed Item Record was Successfully created.");
             }else{
-                $this->settings->set_flashdata('success'," Disposal Record's Successfully updated.");
+                $this->settings->set_flashdata('success'," Disposed Item Record's Successfully updated.");
             }
         }
 
@@ -1053,6 +1226,12 @@ switch ($action) {
         break;
     case 'delete_role':
         echo $Master->delete_role();
+        break;
+    case 'expiry_return':
+        echo $Master->expiry_return();
+        break;
+    case 'mlcheck_return':
+        echo $Master->mlcheck_return();
         break;
     case 'save_profile':
         echo $Master->save_profile();

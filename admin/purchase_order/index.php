@@ -33,7 +33,7 @@
                     <tbody>
                     <?php
                     $i = 1;
-                    $qry = $conn->query("SELECT p.*, s.name as supplier_name FROM `purchase_orders` p inner join suppliers s on p.supplier_id = s.id");
+                    $qry = $conn->query("SELECT p.*, s.name as supplier_name FROM `purchase_orders` p inner join suppliers s on p.supplier_id = s.id order by p.po_code desc");
                     while ($row = $qry->fetch_assoc()):
                         $row['items'] = $conn->query("SELECT count(item_id) as `items` FROM `po_items` where po_id = '{$row['id']}' ")->fetch_assoc()['items'];
                         ?>

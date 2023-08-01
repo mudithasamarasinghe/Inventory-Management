@@ -13,6 +13,7 @@
                         <col width="5%">
                         <col width="25%">
                         <col width="25%">
+						<col width="25%">
                         <col width="25%">
                         <col width="20%">
                     </colgroup>
@@ -21,28 +22,36 @@
                             <th>#</th>
                             <th>Date/ Time Created</th>
                             <th>From</th>
+							<th>Expiry Date</th>
                             <th>No of Items</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody class="text-center">
-                        <?php 
+                        <?php
                         $i = 1;
-                        $qry = $conn->query("SELECT id,date_created,from_order,form_id,IF(stock_ids, LENGTH(stock_ids) - LENGTH(REPLACE(stock_ids, ',', '')) + 1, 0) AS items  FROM `receivings` order by `date_created` desc");
+                        $qry = $conn->query("SELECT r.id,r.date_created,r.from_order,r.form_id,sl.expiry_date,IF(stock_ids, LENGTH(stock_ids) - LENGTH(REPLACE(stock_ids, ',', '')) + 1, 0) AS items  FROM receivings r inner join stock_list sl on sl.id=r.stock_ids order by `date_created` desc");
                         while($row = $qry->fetch_assoc()):
                            // $row['items'] = explode(',',$row['stock_ids']);
 							//$row['items'] = explode(',', $result['comp_uids'] ?? '');
 							//  $row['items'] = count(explode(',',$row['stock_ids']));
                             if($row['from_order'] == 1){
                                 $code = $conn->query("SELECT po_code from `purchase_orders` where id='{$row['form_id']}' ")->fetch_assoc()['po_code'];
-                            }else{
+                          }else{
                                 $code = $conn->query("SELECT bo_code from `back_orders` where id='{$row['form_id']}' ")->fetch_assoc()['bo_code'];
                             }
-                        ?>
+                            ?>
                             <tr>
                                 <td class="text-center"><?php echo $i++; ?></td>
                                 <td><?php echo date("Y-m-d H:i",strtotime($row['date_created'])) ?></td>
                                 <td><?php echo $code ?></td>
+                                <td><?php
+                                    if ($row['expiry_date'] == '0000-00-00 00:00:00'){
+                                        echo "No expiry date";
+                                    }else {
+                                        echo date("Y-m-d H:i",strtotime($row['expiry_date']));
+                                    }
+                                     ?></td>
                                 <td><?php echo number_format($row['items']); ?></td>
                                 <td align="center">
                                     <button type="button" class="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">

@@ -28,21 +28,22 @@ if(isset($_GET['id'])){
     <div class="card-body">
         <form action="" id="po-form">
             <input type="hidden" name="id" value="<?php echo isset($id) ? $id : '' ?>">
+			
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-6">
                         <?php
-                        // Fetch the last PO code from the database
+                        // Fetch the last PO There is no item for this suplier.code from the database
                         $qry = $conn->query("SELECT po_code FROM `purchase_orders` ORDER BY po_code DESC LIMIT 1");
                         if($qry->num_rows >0) {
                             $last_po_code = $qry->fetch_assoc()['po_code'];
 
-                            // Extract the numeric part from the last PO code and increment it
-                            $numeric_part = intval(substr($last_po_code, 3));
-                            $next_numeric_part = $numeric_part + 1;
+                                // Extract the numeric part from the last PO code and increment it
+                                $numeric_part = intval(substr($last_po_code, 3));
+                                $next_numeric_part = $numeric_part + 1;
 
-                            // Concatenate the prefix "PO-" with the incremented numeric part to get the next PO code
-                            $next_po_code = "PO-" . sprintf("%03d", $next_numeric_part);
+                                // Concatenate the prefix "PO-" with the incremented numeric part to get the next PO code
+                                $next_po_code = "PO-" . sprintf("%03d", $next_numeric_part);
 //                            }
                         } else {
                             $next_po_code = "PO-001";
@@ -206,6 +207,8 @@ if(isset($_GET['id'])){
         })
 
         $('#supplier_id').change(function(){
+			
+			var options = $('#supplier_id').get(0).options;
             var supplier_id = $(this).val()
             $('#item_id').select2('destroy')
 
@@ -232,6 +235,9 @@ if(isset($_GET['id'])){
                     })
                 })
             }else{
+				location.reload();
+				alert('There is no item for this supplier.');
+
                 list_item.then(function(){
 
                     $('#supplier_id').attr('disabled','disabled');
@@ -248,13 +254,14 @@ if(isset($_GET['id'])){
         })
 
         $('#add_to_list').click(function(){
+			
             var supplier = $('#supplier_id').val()
             var item = $('#item_id').val()
             var qty = $('#qty').val() > 0 ? $('#qty').val() : 0;
             var unit = $('#unit').val()
             // console.log(supplier,item)
-            var item_name = items[supplier][item].name || 'N/A';
-            var item_description = items[supplier][item].description || 'N/A';
+            var item_name = items[supplier][item].name;
+            var item_description = items[supplier][item].description;
             var tr = $('#clone_list tr').clone()
             if(item == '' || qty == '' || unit == '' ){
                 alert_toast('Form Item textfields are required.','warning');

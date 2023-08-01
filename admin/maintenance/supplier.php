@@ -13,12 +13,12 @@
 					<col width="5%">
 					<col width="10%">
 					<col width="10%">
-					<col width="10%">
-					<col width="15%">
-					<col width="10%">
-					<col width="15%">
 					<col width="8%">
-                    <col width="10%">
+					<col width="15%">
+					<col width="10%">
+					<col width="12%">
+					<col width="7%">
+                    <col width="8%">
 				</colgroup>
 				<thead>
 					<tr class="text-center">

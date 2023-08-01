@@ -103,27 +103,24 @@ if(isset($_GET['bo_id'])){
                 <hr>
                 <table class="table table-striped table-bordered" id="list">
                     <colgroup>
-                        <col width="5%">
-                        <col width="10%">
+                        <col width="3%">
+						 <col width="30%">
+                        <col width="20%">
                         <col width="10%">
                     </colgroup>
                     <thead>
                         <tr class="text-light bg-navy">
                             <th class="text-center py-1 px-2"></th>
+							    <th class="text-center py-1 px-2">Item</th>
+								<th class="text-center py-1 px-2">Expiry Date</th>
+								 <th class="text-center py-1 px-2">Unit</th>
                             <th class="text-center py-1 px-2">Qty</th>
-                            <th class="text-center py-1 px-2">Unit</th>
-                            <th class="text-center py-1 px-2">Item</th>
+                           
+                        
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-						
-
-
-
-              
-						
-						
                         if(isset($po_id)):
                         if(!isset($bo_id))
                         $qry = $conn->query("SELECT p.*,i.name,i.description FROM `po_items` p inner join items i on p.item_id = i.id where p.po_id = '{$po_id}'");
@@ -143,32 +140,29 @@ if(isset($_GET['bo_id'])){
           $tqty = $tqty + $row2['quantity'];
                endwhile;             
 		endwhile; 
-						///////////////////////////////
-                            //if(isset($stock_ids)){
-                            //    // echo "SELECT * FROM `stock_list` where id in ($stock_ids) and item_id = '{$row['item_id']}'";
-                             //   $qty = $conn->query("SELECT * FROM `stock_list` where id in ($stock_ids) and item_id = '{$row['item_id']}'");
-                            //    $row['qty'] = $qty->num_rows > 0 ? $qty->fetch_assoc()['quantity'] : $row['qty'];
-
-
-                           // }
                         ?>
                         <tr>
                             <td class="py-1 px-2 text-center">
                                 <button class="btn btn-outline-danger btn-sm rem_row" type="button"><i class="fa fa-times"></i></button>
-                            </td>
-                            <td class="py-1 px-2 text-center qty">
-                                <input type="number" name="qty[]" style="width:50px !important" value="<?php echo $row['quantity']-$tqty; ?>" max = "<?php echo $row['quantity']; ?>" min="0">
-                                <input type="hidden" name="item_id[]" value="<?php echo $row['item_id']; ?>">
-                                <input type="hidden" name="unit[]" value="<?php echo $row['unit']; ?>">
-                                <input type="hidden" name="oqty[]" value="<?php echo $row['quantity']; ?>">
-
-                            </td>
-                            <td class="py-1 px-2 text-center unit">
-                            <?php echo $row['unit']; ?>
-                            </td>
-                            <td class="py-1 px-2 item">
+                            </td>    <td class="py-1 px-2 item">
                             <?php echo $row['name']; ?> <br>
                             <?php echo $row['description']; ?>
+							 <td class="py-1 px-2 text-center expiry_date"><input type="date" name="expiry_date[]" value=""></td>
+                            </td><td class="py-1 px-2 text-center unit">
+                            <?php echo $row['unit']; ?>
+                            </td>
+                            <td class="py-1 px-2 text-center qty">
+                                <input type="number" name="qty[]" style="width:50px !important" value="<?php 
+								if(isset($_GET['bo_id'])){
+								echo $row['quantity']; 
+								} else {
+									echo $row['quantity']-$tqty; 
+								}
+								?>" max = "<?php echo $row['quantity']; ?>" min="0">
+                                <input type="hidden" name="item_id[]" value="<?php echo $row['item_id']; ?>">
+								<input type="hidden" name="unit[]" value="<?php echo $row['unit']; ?>">
+                                <input type="hidden" name="oqty[]" value="<?php echo $row['quantity']; ?>">
+
                             </td>
                         </tr>
                         <?php endwhile; ?>

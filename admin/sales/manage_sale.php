@@ -103,25 +103,25 @@ if(isset($_GET['id'])){
                     <tbody>
                         <?php
                         if(isset($id)):
-                        $qry = $conn->query("SELECT s.*,i.name,i.description FROM `stock_list` s inner join item_list i on s.item_id = i.id where s.id in ({$stock_ids})");
+                        $qry = $conn->query("SELECT s.*,i.name,i.description FROM `stock_list` s inner join items i on s.item_id = i.id where s.id in ({$stock_ids})");
                         while($row = $qry->fetch_assoc()):
                         ?>
                         <tr>
                             <td class="py-1 px-2 text-center">
                                 <button class="btn btn-outline-danger btn-sm rem_row" type="button"><i class="fa fa-times"></i></button>
                             </td>
+                            <td class="py-1 px-2 item">
+                                <?php echo $row['name']; ?> <br>
+                                <?php echo $row['description']; ?>
+                            </td>
+                            <td class="py-1 px-2 text-center unit">
+                                <?php echo $row['unit']; ?>
+                            </td>
                             <td class="py-1 px-2 text-center qty">
                                 <span class="visible"><?php echo number_format($row['quantity']); ?></span>
                                 <input type="hidden" name="item_id[]" value="<?php echo $row['item_id']; ?>">
                                 <input type="hidden" name="unit[]" value="<?php echo $row['unit']; ?>">
                                 <input type="hidden" name="qty[]" value="<?php echo $row['quantity']; ?>">
-                            </td>
-                            <td class="py-1 px-2 text-center unit">
-                            <?php echo $row['unit']; ?>
-                            </td>
-                            <td class="py-1 px-2 item">
-                            <?php echo $row['name']; ?> <br>
-                            <?php echo $row['description']; ?>
                             </td>
                         </tr>
                         <?php endwhile; ?>
